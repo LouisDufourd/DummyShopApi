@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36908.2 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyShopApi", "DummyShopApi\DummyShopApi.csproj", "{84D8DAB7-25EE-451D-9634-99E5A06A1292}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUnitaire", "TestUnitaire\TestUnitaire.csproj", "{75E08996-5674-452E-A24E-7055F43A1031}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84D8DAB7-25EE-451D-9634-99E5A06A1292}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84D8DAB7-25EE-451D-9634-99E5A06A1292}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84D8DAB7-25EE-451D-9634-99E5A06A1292}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84D8DAB7-25EE-451D-9634-99E5A06A1292}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75E08996-5674-452E-A24E-7055F43A1031}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75E08996-5674-452E-A24E-7055F43A1031}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75E08996-5674-452E-A24E-7055F43A1031}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75E08996-5674-452E-A24E-7055F43A1031}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AA91CBD2-61B0-45D1-8EC8-C6DB831C64F8}
+	EndGlobalSection
+EndGlobal

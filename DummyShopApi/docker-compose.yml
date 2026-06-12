@@ -1,0 +1,26 @@
+﻿version: '3.4'
+services:
+  postgresql:
+    image: postgres:latest
+    container_name: database
+    environment:
+      POSTGRES_DB: ecom
+      POSTGRES_USER: website
+      POSTGRES_PASSWORD: CuL2p3meU8jp9A8GJVhu
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+  adminer:
+    image: adminer
+    ports:
+      - 8083:8080
+  api:
+    build:
+      dockerfile: ./DummyShopApi/Dockerfile
+      context: ..
+    container_name: dummyshop-api
+    environment:
+      ConnectionString: Server=postgresql;database=ecom;uid=website;Pwd=CuL2p3meU8jp9A8GJVhu;Port=5432
+      TypeDB: POSTGRESQL
+    ports:
+      - 4669:8080
+      
