@@ -84,6 +84,7 @@ create table orders_products(
 	order_id_fk			int4 			not null	references orders(order_id),
 	product_id_fk		int4			not null	references products(product_id),
 	quantity			int4			not null,
+	is_packed			bool			not null	default false,
 	constraint pk_orders_product primary key (order_id_fk, product_id_fk)
 );
 

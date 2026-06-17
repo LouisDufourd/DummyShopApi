@@ -17,12 +17,12 @@ namespace DummyShopApi.BLL
             throw new NotImplementedException();
         }
 
-        public Task<Command> GetCommandAsync(int id)
+        public Task<Order> GetCommandAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<Command>> GetCommandsAsync(int page)
+        public async Task<IEnumerable<Order>> GetCommandsAsync(int page)
         {
             throw new NotImplementedException();
         }
@@ -39,7 +39,7 @@ namespace DummyShopApi.BLL
             return product;
         }
 
-        public Task<Command> UpdateCommandAsync(Command command)
+        public Task<Order> UpdateCommandAsync(Order command)
         {
             throw new NotImplementedException();
         }

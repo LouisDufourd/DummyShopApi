@@ -6,6 +6,7 @@ namespace DummyShopApi.DAL
     public class UOW : IUOW
     {
         public IInventoryDAO Inventory => CurrentDictionary.GetValueOrDefault(typeof(IInventoryDAO)) as IInventoryDAO;
+        public IOrderDAO Order => CurrentDictionary.GetValueOrDefault(typeof(IOrderDAO)) as IOrderDAO;
 
         private readonly ISession _session;
         private readonly Dictionary<Type, object> CurrentDictionary;
@@ -18,7 +19,8 @@ namespace DummyShopApi.DAL
                 case EDBType.POSTGRESQL:
                     CurrentDictionary = new Dictionary<Type, object>
                     {
-                        {typeof(IInventoryDAO), new InventoryDAOPostgres(_session)}
+                        {typeof(IInventoryDAO), new InventoryDAOPostgres(_session)},
+                        {typeof(IOrderDAO), new OrderDAOPostgres(_session)},
                     };
                     break;
             }
