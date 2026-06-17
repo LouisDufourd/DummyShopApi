@@ -8,7 +8,6 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
 {
     public class InventoryDAOPostgres : IInventoryDAO
     {
-
         private readonly ISession _db;
 
         public InventoryDAOPostgres(ISession session)
@@ -31,9 +30,8 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
 
         public async Task<Product> GetByIdAsync(int id)
         {
-            //TODO: le category id est à 0 quand mapper
             string query = """
-                select product_id as id, p.name, p.description, price, quantity, c.category_id, c.name, c.description
+                select product_id as id, p.name, p.description, price, quantity, c.category_id as categoryid, c.name, c.description
                 from products p 
                 join products_categories pc on pc.product_id_fk = p.product_id
                 join categories c on pc.category_id_fk = c.category_id
@@ -49,7 +47,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                     return product;
                 },
                 new { id },
-                splitOn: "category_id"
+                splitOn: "categoryid"
             );
 
             var newProducts = products
