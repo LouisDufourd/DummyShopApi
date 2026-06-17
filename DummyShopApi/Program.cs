@@ -1,4 +1,5 @@
 
+using DummyShopApi.BLL;
 using DummyShopApi.DAL;
 
 namespace DummyShopApi
@@ -12,6 +13,7 @@ namespace DummyShopApi
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddBLL();
 
             builder.Services.AddDAL((DALOptions options) =>
             {

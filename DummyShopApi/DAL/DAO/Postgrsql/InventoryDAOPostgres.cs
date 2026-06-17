@@ -1,11 +1,12 @@
 ﻿using Dapper;
 using DummyShopApi.DAL.Entities;
 using Npgsql;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 
 namespace DummyShopApi.DAL.DAO.Postgrsql
 {
-    public class InventoryDAOPostgres: IInventoryDAO
+    public class InventoryDAOPostgres : IInventoryDAO
     {
 
         private readonly ISession _db;
@@ -15,17 +16,65 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             _db = session;
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsync(int page = 1, int size = 20)
         {
-            string select = "select product_id as id, name, description from products";
+            string query = """
+                select product_id as id, name, description 
+                from products
+                offset @offset
+                limit @size
+                """;
 
-            IEnumerable<Product> products = _db.Connection.Query<Product>(select);
+            IEnumerable<Product> products = await _db.Connection.QueryAsync<Product>(query, new { offset = (page - 1) * size, size });
             return products;
         }
 
         public async Task<Product> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            //TODO: le category id est à 0 quand mapper
+            string query = """
+                select product_id as id, p.name, p.description, price, quantity, c.category_id, c.name, c.description
+                from products p 
+                join products_categories pc on pc.product_id_fk = p.product_id
+                join categories c on pc.category_id_fk = c.category_id
+                where product_id = @id;
+                """;
+
+            IEnumerable<Product> products = await _db.Connection.QueryAsync<Product, Category, Product>(
+                query,
+                (product, category) =>
+                {
+                    if (category != null)
+                        product.Categories = [category];
+                    return product;
+                },
+                new { id },
+                splitOn: "category_id"
+            );
+
+            var newProducts = products
+                .GroupBy(p => p.Id)
+                .Select(g =>
+                {
+                    Product groupedProduct = g.First();
+                    groupedProduct.Categories = g.Select(p => p.Categories.Single()).ToList();
+                    return groupedProduct;
+                }).ToList();
+
+            return newProducts.First();
+        }
+
+        public async Task<Product> PatchAsync(int id, int quantity)
+        {
+            string query = """
+                update products
+                set quantity = @quantity
+                where product_id = @id
+                """;
+
+            await _db.Connection.ExecuteAsync(query, new { id, quantity });
+
+            return await GetByIdAsync(id);
         }
     }
 }

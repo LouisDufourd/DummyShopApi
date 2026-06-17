@@ -6,9 +6,9 @@ namespace TestUnitaire
         public void Random()
         {
             Random random = new Random();
-            var rdn = random.NextDouble();
+            var rdm = random.NextDouble();
 
-            Assert.True(rdn > .5);
+            Assert.True(rdm > .5);
         }
     }
 }

@@ -1,0 +1,29 @@
+services:
+  dummyshopapi:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionString=Server=postgresql;database=ecom;uid=website;Pwd=CuL2p3meU8jp9A8GJVhu;Port=5432
+      - TypeDB=POSTGRESQL
+    ports:
+      - "8080"
+      - "8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  postgresql:
+    image: postgres:latest
+    container_name: database
+    environment:
+      POSTGRES_DB: ecom
+      POSTGRES_USER: website
+      POSTGRES_PASSWORD: CuL2p3meU8jp9A8GJVhu
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+  adminer:
+    image: adminer
+    ports:
+      - 8083:8080
