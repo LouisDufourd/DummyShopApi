@@ -6,6 +6,7 @@ namespace DummyShopApi.DAL
     {
 
         public IInventoryDAO Inventory { get; }
+        public IOrderDAO Order { get; }
 
 
         /// <summary>

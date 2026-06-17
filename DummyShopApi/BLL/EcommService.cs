@@ -12,41 +12,34 @@ namespace DummyShopApi.BLL
             _db = db;
         }
 
-        public Task<Product> AddProductAsync(Product product)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<Order> GetCommandAsync(int id)
         {
-            throw new NotImplementedException();
+            return _db.Order.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<Order>> GetCommandsAsync(int page)
+        public Task<IEnumerable<Order>> GetCommandsAsync(int page)
         {
-            throw new NotImplementedException();
+            return _db.Order.GetAllAsync(page: page);
         }
 
-        public async Task<IEnumerable<Product>> GetProductsAsync(int page)
+        public Task<IEnumerable<Product>> GetProductsAsync(int page)
         {
-            return await _db.Inventory.GetAllAsync(page);
+            return _db.Inventory.GetAllAsync(page: page);
         }
 
-        public async Task<Product> GetProductDetail(int id)
+        public Task<Product> GetProductAsync(int id)
         {
-            var product = await _db.Inventory.GetByIdAsync(id);
-
-            return product;
+            return _db.Inventory.GetByIdAsync(id);
         }
 
-        public Task<Order> UpdateCommandAsync(Order command)
+        public Task<Order> UpdateCommandStatusAsync(int id, string status)
         {
-            throw new NotImplementedException();
+            return _db.Order.PatchOrderStatusAsync(id, status);
         }
 
-        public Task<Product> UpdateProductAsync(Product product)
+        public Task<Product> UpdateProductQuantityAsync(int id, int quantity)
         {
-            throw new NotImplementedException();
+            return _db.Inventory.PatchQuantityAsync(id, quantity);
         }
     }
 }

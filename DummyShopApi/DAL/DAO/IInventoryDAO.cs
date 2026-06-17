@@ -10,6 +10,6 @@ namespace DummyShopApi.DAL.DAO
         /// <param name="id">The id of the product</param>
         /// <param name="quantity">The quantity of the product</param>
         /// <returns>The updated product</returns>
-        public Task<Product> PatchAsync(int id, int quantity);
+        public Task<Product> PatchQuantityAsync(int id, int quantity);
     }
 }
