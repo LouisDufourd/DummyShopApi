@@ -1,5 +1,3 @@
-variables:
-  BUILD_CONFIGURATION: Release
 workflow:
   rules:
   - if: '$CI_COMMIT_BRANCH == "master"'
@@ -8,7 +6,7 @@ build-job:
   stage: build
   script:
     - 'dotnet restore "./DummyShopApi/DummyShopApi.csproj"'
-    - 'dotnet build "./DummyShopApi.csproj" -c $BUILD_CONFIGURATION -o /app/build'
+    - 'dotnet build "./DummyShopApi.csproj" -c Release -o /app/build'
 
 test-job1:
   stage: test
