@@ -4,7 +4,8 @@ workflow:
 build-job:
   stage: build
   script:
-    - echo "Hello, $GITLAB_USER_LOGIN!"
+    - dotnet restore "./DummyShopApi/DummyShopApi.csproj"
+    - dotnet build "./DummyShopApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 test-job1:
   stage: test
