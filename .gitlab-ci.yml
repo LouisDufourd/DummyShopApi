@@ -6,7 +6,7 @@ build-job:
   stage: build
   script:
     - 'dotnet restore "./DummyShopApi/DummyShopApi.csproj"'
-    - 'dotnet build "./DummyShopApi.csproj" -c Release -o /app/build'
+    - 'dotnet build "./DummyShopApi/DummyShopApi.csproj" -c Release -o /app/build'
 
 test-job1:
   stage: test
