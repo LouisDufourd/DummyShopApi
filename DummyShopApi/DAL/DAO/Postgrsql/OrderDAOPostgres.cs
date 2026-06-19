@@ -88,5 +88,10 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
 
             return await GetByIdAsync(order.Id);
         }
+
+        public Task<Order> PatchOrderStatusAsync(int id, string status)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
