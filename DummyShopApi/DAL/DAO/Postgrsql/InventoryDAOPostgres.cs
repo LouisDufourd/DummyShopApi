@@ -62,6 +62,11 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return newProducts.First();
         }
 
+        public Task<Product> PatchProductStatus(int id, EProductStatus status)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Product> PatchQuantityAsync(int id, int quantity)
         {
             string query = """
