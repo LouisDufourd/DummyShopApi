@@ -26,7 +26,7 @@ namespace DummyShopApi.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProduct([FromRoute] int id)
         {
-            var product = await _ecomService.GetProductDetail(id);
+            var product = await _ecomService.GetProductAsync(id);
             return Ok(product);
         }
     }
