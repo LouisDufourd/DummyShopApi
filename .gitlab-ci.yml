@@ -1,12 +1,12 @@
-image: mcr.microsoft.com/dotnet/sdk:8.0
 workflow:
   rules:
   - if: '$CI_COMMIT_BRANCH == "master"'
 build-job:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: build
   script:
-    - dotnet restore "./DummyShopApi/DummyShopApi.csproj"
-    - dotnet build "./DummyShopApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+    - 'dotnet restore "./DummyShopApi/DummyShopApi.csproj"'
+    - 'dotnet build "./DummyShopApi.csproj" -c $BUILD_CONFIGURATION -o /app/build'
 
 test-job1:
   stage: test
