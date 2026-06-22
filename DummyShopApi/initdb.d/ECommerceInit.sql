@@ -13,6 +13,8 @@ drop extension if exists unaccent;
 
 create extension unaccent;
 
+create type product_order_status as enum ('None', 'Picked', 'Packed');
+
 create table addresses(
 	address_id			serial4 				not null	primary key,
 	street_number		varchar(10) 			not null,

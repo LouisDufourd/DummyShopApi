@@ -1,6 +1,7 @@
 ﻿using DummyShopApi.API.DTO.Models;
 using DummyShopApi.API.DTO.Response;
 using DummyShopApi.BLL.Interfaces;
+using DummyShopApi.DAL.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,6 +35,20 @@ namespace DummyShopApi.API.Controllers
             );
 
             return Ok(orderResponses);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrderProducts([FromRoute] int id, [FromQuery] int page = 1)
+        {
+            int size = 20;
+            var products = await _service.GetOrderProductsAsync(id, page, size);
+            var response = new GetOrderProductsResponse(
+                products: products.Select(p => new KeyValuePair<int, string>(p.Id, p.Status)).ToDictionary(),
+                page,
+                size
+            );
+
+            return Ok(response);
         }
     }
 }

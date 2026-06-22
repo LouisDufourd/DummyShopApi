@@ -1,4 +1,5 @@
 ﻿using DummyShopApi.BLL.Interfaces;
+using DummyShopApi.BLL.Models;
 using DummyShopApi.DAL;
 using DummyShopApi.DAL.Entities;
 
@@ -45,6 +46,25 @@ namespace DummyShopApi.BLL
         public Task<IEnumerable<Order>> GetOrdersAsync(int page = 1, int size = 20)
         {
             return _db.Order.GetAllAsync(page, size);
+        }
+
+        public async Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int id, int page = 1, int size = 20)
+        {
+            var ordersProdcuts = await _db.Order.GetProductsAsync(id, page, size);
+
+            return ordersProdcuts.Select((d) =>
+            {
+                var product = d.Key;
+                var status = d.Value;
+                return new OrderProduct(
+                    product.Id,
+                    product.Name,
+                    product.Description,
+                    product.Quantity,
+                    product.Price,
+                    status.ToString()
+                );
+            });
         }
     }
 }
