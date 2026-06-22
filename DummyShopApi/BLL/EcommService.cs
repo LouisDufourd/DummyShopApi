@@ -33,7 +33,7 @@ namespace DummyShopApi.BLL
             return _db.Inventory.GetByIdAsync(id);
         }
 
-        public Task<Order> UpdateCommandStatusAsync(int id, string status)
+        public Task<Order> UpdateOrderStatusAsync(int id, string status)
         {
             return _db.Order.PatchOrderStatusAsync(id, status);
         }

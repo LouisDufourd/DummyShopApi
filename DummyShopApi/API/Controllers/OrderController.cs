@@ -1,4 +1,5 @@
 ﻿using DummyShopApi.API.DTO.Models;
+using DummyShopApi.API.DTO.Request;
 using DummyShopApi.API.DTO.Response;
 using DummyShopApi.BLL.Interfaces;
 using DummyShopApi.DAL.Entities;
@@ -49,6 +50,14 @@ namespace DummyShopApi.API.Controllers
             );
 
             return Ok(response);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusRequest updateOrderStatusRequest)
+        {
+            var order = await _service.UpdateOrderStatusAsync(updateOrderStatusRequest.Id, updateOrderStatusRequest.Status);
+
+            return Ok(order);
         }
     }
 }
