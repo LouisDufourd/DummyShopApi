@@ -1,8 +1,8 @@
 ﻿namespace DummyShopApi.DAL.Entities
 {
-    public enum EProductStatus
+    public enum EOrderProductStatus
     {
-        ToBePicked,
+        None,
         Picked,
         Packed
     }

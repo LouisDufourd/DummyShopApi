@@ -57,7 +57,7 @@ namespace DummyShopApi.API.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateProductQuantity([FromBody] UpdateProductQuantityRequest quantityRequest)
         {
-            var product = await _service.UpdateProductQuantityAsync(quantityRequest.ProductId, quantityRequest.Quantity);
+            var product = await _service.PatchProductQuantityAsync(quantityRequest.ProductId, quantityRequest.Quantity);
 
             var productResponse = new GetProductResponse(
                 id: product.Id,

@@ -43,7 +43,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return (await _db.Connection.QueryAsync<Order>(query, new { id })).Single();
         }
 
-        public async Task<Dictionary<Product, OrderProductStatus>> GetProductsAsync(int id, int page = 1, int size = 20)
+        public async Task<Dictionary<Product, EOrderProductStatus>> GetProductsAsync(int id, int page = 1, int size = 20)
         {
             string query = """
                 select
@@ -58,8 +58,8 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 where order_id_fk = @id
                 """;
 
-            var productStatus = new Dictionary<int, OrderProductStatus>();
-            var products = await _db.Connection.QueryAsync<Product, OrderProductStatus, Product>(query, 
+            var productStatus = new Dictionary<int, EOrderProductStatus>();
+            var products = await _db.Connection.QueryAsync<Product, EOrderProductStatus, Product>(query, 
                 (product, status) =>
                 {
                     productStatus.Add(product.Id, status);
@@ -69,7 +69,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 splitOn: "status");
 
             return products
-                .Select(p => new KeyValuePair<Product, OrderProductStatus>(p, productStatus[p.Id]))
+                .Select(p => new KeyValuePair<Product, EOrderProductStatus>(p, productStatus[p.Id]))
                 .Skip(page * size - size)
                 .Take(size)
                 .ToDictionary();
@@ -92,6 +92,19 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             await _db.Connection.ExecuteAsync(query, new { status, id });
 
             return await GetByIdAsync(id);
+        }
+
+        public async Task PatchProductStatusAsync(int categoryId, int productId, EOrderProductStatus status)
+        {
+            string query = """
+                update orders_products
+                set status = @status
+                where 
+                    product_id_fk = @productId and
+                    order_id_fk = @orderId
+                """;
+
+            await _db.Connection.ExecuteAsync(query, new { categoryId, productId, status });
         }
     }
 }

@@ -22,7 +22,7 @@ namespace DummyShopApi.DAL
             {
                 case EDBType.POSTGRESQL:
                     var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
-                    dataSourceBuilder.MapEnum<OrderProductStatus>("product_order_status");
+                    dataSourceBuilder.MapEnum<EOrderProductStatus>("product_order_status");
                     var dataSource = dataSourceBuilder.Build();
                     Connection = dataSource.OpenConnection();
                     break;

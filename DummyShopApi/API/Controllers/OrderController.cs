@@ -38,7 +38,7 @@ namespace DummyShopApi.API.Controllers
             return Ok(orderResponses);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}/products")]
         public async Task<IActionResult> GetOrderProducts([FromRoute] int id, [FromQuery] int page = 1)
         {
             int size = 20;
@@ -55,9 +55,16 @@ namespace DummyShopApi.API.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusRequest updateOrderStatusRequest)
         {
-            var order = await _service.UpdateOrderStatusAsync(updateOrderStatusRequest.Id, updateOrderStatusRequest.Status);
+            var order = await _service.PatchOrderStatusAsync(updateOrderStatusRequest.Id, updateOrderStatusRequest.Status);
 
             return Ok(order);
+        }
+
+        [HttpPut("{id}/products")]
+        public async Task<IActionResult> UpdateProductStatus([FromBody] UpdateProductStatusRequest updateProductStatus, [FromRoute] int id)
+        {
+            await _service.PatchProductStatus(updateProductStatus.ProductId, categoryId: id, updateProductStatus.Status);
+            return Ok();
         }
     }
 }

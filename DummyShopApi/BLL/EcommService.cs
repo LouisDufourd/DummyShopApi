@@ -33,12 +33,12 @@ namespace DummyShopApi.BLL
             return _db.Inventory.GetByIdAsync(id);
         }
 
-        public Task<Order> UpdateOrderStatusAsync(int id, string status)
+        public Task<Order> PatchOrderStatusAsync(int id, string status)
         {
             return _db.Order.PatchOrderStatusAsync(id, status);
         }
 
-        public Task<Product> UpdateProductQuantityAsync(int id, int quantity)
+        public Task<Product> PatchProductQuantityAsync(int id, int categoryId, int quantity)
         {
             return _db.Inventory.PatchQuantityAsync(id, quantity);
         }
@@ -65,6 +65,33 @@ namespace DummyShopApi.BLL
                     status.ToString()
                 );
             });
+        }
+
+        public async Task PatchProductStatus(int productId, int categoryId, string status)
+        {
+            var enumStatus = GetOrderProductStatusFromString(status);
+            await _db.Order.PatchProductStatusAsync(productId, categoryId, enumStatus);
+        }
+
+        private EOrderProductStatus GetOrderProductStatusFromString(string status)
+        {
+            EOrderProductStatus enumStatus;
+            switch (status.ToLower())
+            {
+                case "none":
+                    enumStatus = EOrderProductStatus.None;
+                    break;
+                case "picked":
+                    enumStatus = EOrderProductStatus.Picked;
+                    break;
+                case "packed":
+                    enumStatus = EOrderProductStatus.Packed;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return enumStatus;
         }
     }
 }
