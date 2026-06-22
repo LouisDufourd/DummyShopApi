@@ -13,6 +13,8 @@ drop extension if exists unaccent;
 
 create extension unaccent;
 
+create type product_order_status as enum ('None', 'Picked', 'Packed');
+
 create table addresses(
 	address_id			serial4 				not null	primary key,
 	street_number		varchar(10) 			not null,
@@ -69,35 +71,35 @@ create table images(
 );
 
 create table orders_status(
-	order_status_id		serial4  		not null	primary key,
-	label				varchar(100) 	not null
+	order_status_id		serial4  				not null	primary key,
+	label				varchar(100) 			not null
 );
 
 create table orders(
-	order_id			serial4			not null 	primary key,
-	order_status_id_fk	int4			not null	references orders_status(order_status_id),
-	user_id_fk			int4			not null	references users(user_id),
-	created_at			timestamp		not null	default now()
+	order_id			serial4					not null 	primary key,
+	order_status_id_fk	int4					not null	references orders_status(order_status_id),
+	user_id_fk			int4					not null	references users(user_id),
+	created_at			timestamp				not null	default now()
 );
 
 create table orders_products(
-	order_id_fk			int4 			not null	references orders(order_id),
-	product_id_fk		int4			not null	references products(product_id),
-	quantity			int4			not null,
-	is_packed			bool			not null	default false,
+	order_id_fk			int4	 				not null	references orders(order_id),
+	product_id_fk		int4					not null	references products(product_id),
+	quantity			int4					not null,
+	status				product_order_status	not null	default 'None',
 	constraint pk_orders_product primary key (order_id_fk, product_id_fk)
 );
 
 create table carts(
-	cart_id 			serial4 		not null	primary key,
-	user_id_fk			int4			not null 	references users(user_id)	unique,
-	created_at			timestamp		not null	default now()
+	cart_id 			serial4 				not null	primary key,
+	user_id_fk			int4					not null 	references users(user_id)	unique,
+	created_at			timestamp				not null	default now()
 );
 
 create table carts_products(
-	product_id_fk		int4 			not null 	references products(product_id),
-	cart_id_fk			int4 			not null 	references carts(cart_id),
-	quantity			int4 			not null,
+	product_id_fk		int4	 				not null 	references products(product_id),
+	cart_id_fk			int4	 				not null 	references carts(cart_id),
+	quantity			int4 					not null,
 	constraint pk_cart_product primary key (product_id_fk, cart_id_fk)
 );
 

@@ -1,4 +1,5 @@
-﻿using DummyShopApi.DAL.Entities;
+﻿using DummyShopApi.BLL.Models;
+using DummyShopApi.DAL.Entities;
 
 namespace DummyShopApi.BLL.Interfaces
 {
@@ -10,5 +11,6 @@ namespace DummyShopApi.BLL.Interfaces
         Task<IEnumerable<Product>> GetProductsAsync(int page = 1, int size = 20);
         Task<Product> GetProductAsync(int id);
         Task<Product> UpdateProductQuantityAsync(int id, int quantity);
+        Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int id, int page = 1, int size = 20);
     }
 }

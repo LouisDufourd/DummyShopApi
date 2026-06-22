@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using DummyShopApi.DAL.Entities;
 using System.Data;
+using System.Drawing;
 
 namespace DummyShopApi.DAL.DAO.Postgrsql
 {
@@ -42,7 +43,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return (await _db.Connection.QueryAsync<Order>(query, new { id })).Single();
         }
 
-        public async Task<Dictionary<Product, bool>> GetProductsAsync(int id)
+        public async Task<Dictionary<Product, OrderProductStatus>> GetProductsAsync(int id, int page = 1, int size = 20)
         {
             string query = """
                 select
@@ -51,26 +52,30 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                     price,
                     op.quantity,
                     description,
-                    is_packed as isPacked
+                    status
                 from orders_products op
                 join products p on p.product_id = op.product_id_fk
                 where order_id_fk = @id
                 """;
 
-            var isPackeds = new Dictionary<int, bool>();
-            var products = await _db.Connection.QueryAsync<Product, bool, Product>(query, 
-                (product, isPacked) =>
+            var productStatus = new Dictionary<int, OrderProductStatus>();
+            var products = await _db.Connection.QueryAsync<Product, OrderProductStatus, Product>(query, 
+                (product, status) =>
                 {
-                    isPackeds.Add(product.Id, isPacked);
+                    productStatus.Add(product.Id, status);
                     return product;
                 },
                 new { id },
-                splitOn: "isPacked");
+                splitOn: "status");
 
-            return products.Select(p => new KeyValuePair<Product, bool>(p, isPackeds[p.Id])).ToDictionary();
+            return products
+                .Select(p => new KeyValuePair<Product, OrderProductStatus>(p, productStatus[p.Id]))
+                .Skip(page * size - size)
+                .Take(size)
+                .ToDictionary();
         }
 
-        public async Task<Order> PatchOrderStatusAsync(Order order)
+        public async Task<Order> PatchOrderStatusAsync(int id, string status)
         {
             string query = """
                 update orders 
@@ -84,14 +89,9 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 where order_id = @id
                 """;
 
-            await _db.Connection.ExecuteAsync(query, new { status = order.Status, id = order.Id });
+            await _db.Connection.ExecuteAsync(query, new { status, id });
 
-            return await GetByIdAsync(order.Id);
-        }
-
-        public Task<Order> PatchOrderStatusAsync(int id, string status)
-        {
-            throw new NotImplementedException();
+            return await GetByIdAsync(id);
         }
     }
 }

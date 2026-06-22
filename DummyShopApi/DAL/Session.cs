@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using DummyShopApi.DAL.Entities;
+using Npgsql;
 using System.Data;
 
 namespace DummyShopApi.DAL
@@ -20,7 +21,10 @@ namespace DummyShopApi.DAL
             switch (edbType)
             {
                 case EDBType.POSTGRESQL:
-                    Connection = new NpgsqlConnection(connectionString);
+                    var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+                    dataSourceBuilder.MapEnum<OrderProductStatus>("product_order_status");
+                    var dataSource = dataSourceBuilder.Build();
+                    Connection = dataSource.OpenConnection();
                     break;
                 default:
                     throw new NotImplementedException();
