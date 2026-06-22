@@ -41,5 +41,10 @@ namespace DummyShopApi.BLL
         {
             return _db.Inventory.PatchQuantityAsync(id, quantity);
         }
+
+        public Task<IEnumerable<Order>> GetOrdersAsync(int page = 1, int size = 20)
+        {
+            return _db.Order.GetAllAsync(page, size);
+        }
     }
 }
