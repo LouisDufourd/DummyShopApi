@@ -1,4 +1,7 @@
-﻿using DummyShopApi.BLL.Interfaces;
+﻿using DummyShopApi.API.DTO.Models;
+using DummyShopApi.API.DTO.Request;
+using DummyShopApi.API.DTO.Response;
+using DummyShopApi.BLL.Interfaces;
 using DummyShopApi.DAL;
 using DummyShopApi.DAL.DAO.Postgrsql;
 using Microsoft.AspNetCore.Http;
@@ -10,24 +13,62 @@ namespace DummyShopApi.API.Controllers
     [ApiController]
     public class StockController : ControllerBase
     {
-        private readonly IEcomService _ecomService;
+        private readonly IEcomService _service;
         public StockController(IEcomService ecomService) { 
-            _ecomService = ecomService;
+            _service = ecomService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetInventory([FromQuery] int page = 1)
         {
-            var inventory = await _ecomService.GetProductsAsync(page);
+            int size = 20;
+            
+            var inventory = (await _service.GetProductsAsync(page, size)).Select((p) => {
+                return new ProductListItem(
+                    p.Id, 
+                    p.Name, 
+                    p.Quantity, 
+                    [.. p.Categories.Select((c) => c.Name)]
+                );
+            }).ToList();
 
-            return Ok(inventory);
+            var inventoryResponse = new GetInventoryResponse(page: page, size: size, products: inventory);
+
+            return Ok(inventoryResponse);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProduct([FromRoute] int id)
         {
-            var product = await _ecomService.GetProductAsync(id);
-            return Ok(product);
+            var product = await _service.GetProductAsync(id);
+            
+            var productResponse = new GetProductResponse(
+                id: product.Id,
+                name: product.Name,
+                description: product.Description,
+                quantity: product.Quantity,
+                sellingPrice: product.Price,
+                categories: product.Categories.Select((c) => c.Name).ToList()
+            );
+
+            return Ok(productResponse);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateProductQuantity([FromBody] UpdateProductQuantityRequest quantityRequest)
+        {
+            var product = await _service.UpdateProductQuantityAsync(quantityRequest.ProductId, quantityRequest.Quantity);
+
+            var productResponse = new GetProductResponse(
+                id: product.Id,
+                name: product.Name,
+                description: product.Description,
+                quantity: product.Quantity,
+                sellingPrice: product.Price,
+                categories: product.Categories.Select((c) => c.Name).ToList()
+            );
+
+            return Ok(productResponse);
         }
     }
 }

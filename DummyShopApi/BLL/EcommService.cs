@@ -22,9 +22,9 @@ namespace DummyShopApi.BLL
             return _db.Order.GetAllAsync(page: page);
         }
 
-        public Task<IEnumerable<Product>> GetProductsAsync(int page)
+        public Task<IEnumerable<Product>> GetProductsAsync(int page = 1, int size = 20)
         {
-            return _db.Inventory.GetAllAsync(page: page);
+            return _db.Inventory.GetAllAsync(page: page, size: size);
         }
 
         public Task<Product> GetProductAsync(int id)

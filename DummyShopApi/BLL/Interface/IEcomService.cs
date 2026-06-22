@@ -7,7 +7,7 @@ namespace DummyShopApi.BLL.Interfaces
         Task<IEnumerable<Order>> GetCommandsAsync(int page);
         Task<Order> GetCommandAsync(int id);
         Task<Order> UpdateCommandStatusAsync(int id, string status);
-        Task<IEnumerable<Product>> GetProductsAsync(int page);
+        Task<IEnumerable<Product>> GetProductsAsync(int page = 1, int size = 20);
         Task<Product> GetProductAsync(int id);
         Task<Product> UpdateProductQuantityAsync(int id, int quantity);
     }
