@@ -14,19 +14,21 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             _db = db;
         }
 
-        public async Task<IEnumerable<Order>> GetAllAsync(int page = 1, int size = 20)
+        public async Task<IEnumerable<Order>> GetAllAsync(int page = 1, int size = 20, string? status = null)
         {
             string query = """
                 select 
                     order_id as id, 
-                    os.label as status,
+                    os.label as status
                 from orders o
                 join orders_status os on os.order_status_id = o.order_status_id_fk
+                where 
+                    (@status is null or lower(os.label) = @status)
                 limit @limit
                 offset @offset;
                 """;
 
-            return await _db.Connection.QueryAsync<Order>(query, new { limit = size, offset = page * size - size });
+            return await _db.Connection.QueryAsync<Order>(query, new { limit = size, offset = page * size - size, status = status?.ToLower() });
         }
 
         public async Task<Order> GetByIdAsync(int id)

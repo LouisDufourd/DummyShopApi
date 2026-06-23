@@ -19,10 +19,10 @@ namespace DummyShopApi.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetOrders([FromQuery] int page = 1)
+        public async Task<IActionResult> GetOrders([FromQuery] int page = 1, [FromQuery] string? status = null)
         {
             int size = 20;
-            var orders = await _service.GetOrdersAsync(page, size);
+            var orders = await _service.GetOrdersAsync(page, size, status);
             var orderResponses = new GetOrdersResponse(
                 page,
                 size,
@@ -52,7 +52,7 @@ namespace DummyShopApi.API.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
+        [HttpPut("status")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusRequest updateOrderStatusRequest)
         {
             var order = await _service.PatchOrderStatusAsync(updateOrderStatusRequest.Id, updateOrderStatusRequest.Status);

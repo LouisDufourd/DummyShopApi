@@ -5,7 +5,7 @@ namespace DummyShopApi.BLL.Interfaces
 {
     public interface IEcomService
     {
-        Task<IEnumerable<Order>> GetOrdersAsync(int page = 1, int size = 20);
+        Task<IEnumerable<Order>> GetOrdersAsync(int page = 1, int size = 20, string? status = null);
         Task<Order> GetCommandAsync(int id);
         Task<Order> PatchOrderStatusAsync(int id, string status);
         Task<IEnumerable<Product>> GetProductsAsync(int page = 1, int size = 20);

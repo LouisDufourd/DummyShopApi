@@ -18,11 +18,6 @@ namespace DummyShopApi.BLL
             return _db.Order.GetByIdAsync(id);
         }
 
-        public Task<IEnumerable<Order>> GetCommandsAsync(int page)
-        {
-            return _db.Order.GetAllAsync(page: page);
-        }
-
         public Task<IEnumerable<Product>> GetProductsAsync(int page = 1, int size = 20)
         {
             return _db.Inventory.GetAllAsync(page: page, size: size);
@@ -43,9 +38,9 @@ namespace DummyShopApi.BLL
             return _db.Inventory.PatchQuantityAsync(id, quantity);
         }
 
-        public Task<IEnumerable<Order>> GetOrdersAsync(int page = 1, int size = 20)
+        public Task<IEnumerable<Order>> GetOrdersAsync(int page = 1, int size = 20, string? status = null)
         {
-            return _db.Order.GetAllAsync(page, size);
+            return _db.Order.GetAllAsync(page, size, status);
         }
 
         public async Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int id, int page = 1, int size = 20)

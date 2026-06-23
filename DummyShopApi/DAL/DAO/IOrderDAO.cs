@@ -3,8 +3,10 @@ using System.Collections;
 
 namespace DummyShopApi.DAL.DAO
 {
-    public interface IOrderDAO: IGenericReadDAO<Order, int>
+    public interface IOrderDAO
     {
+        public Task<IEnumerable<Order>> GetAllAsync(int page = 1, int size = 20, string? status = null);
+        public Task<Order> GetByIdAsync(int id);
         public Task<Dictionary<Product, EOrderProductStatus>> GetProductsAsync(int id, int page = 1, int size = 20);
         public Task<Order> PatchOrderStatusAsync(int id, string status);
 

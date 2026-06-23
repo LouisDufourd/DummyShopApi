@@ -29,8 +29,6 @@ namespace DummyShopApi.DAL
                 default:
                     throw new NotImplementedException();
             }
-
-            Connection.Open();
         }
     }
 }
