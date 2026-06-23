@@ -38,7 +38,7 @@ namespace DummyShopApi.BLL
             return _db.Order.PatchOrderStatusAsync(id, status);
         }
 
-        public Task<Product> PatchProductQuantityAsync(int id, int categoryId, int quantity)
+        public Task<Product> PatchProductQuantityAsync(int id, int quantity)
         {
             return _db.Inventory.PatchQuantityAsync(id, quantity);
         }
