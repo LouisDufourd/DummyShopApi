@@ -8,19 +8,19 @@ namespace DummyShopApi.DAL
         public IInventoryDAO Inventory => CurrentDictionary.GetValueOrDefault(typeof(IInventoryDAO)) as IInventoryDAO;
         public IOrderDAO Order => CurrentDictionary.GetValueOrDefault(typeof(IOrderDAO)) as IOrderDAO;
 
-        private readonly ISession _session;
+        private readonly ISession _db;
         private readonly Dictionary<Type, object> CurrentDictionary;
 
         public UOW(String connectionString, EDBType eDBType)
         {
-            _session = new Session(connectionString, eDBType);
-            switch(_session.EDBType)
+            _db = new Session(connectionString, eDBType);
+            switch(_db.EDBType)
             {
                 case EDBType.POSTGRESQL:
                     CurrentDictionary = new Dictionary<Type, object>
                     {
-                        {typeof(IInventoryDAO), new InventoryDAOPostgres(_session)},
-                        {typeof(IOrderDAO), new OrderDAOPostgres(_session)},
+                        {typeof(IInventoryDAO), new InventoryDAOPostgres(_db)},
+                        {typeof(IOrderDAO), new OrderDAOPostgres(_db)},
                     };
                     break;
             }
@@ -28,20 +28,28 @@ namespace DummyShopApi.DAL
 
         public void BeginTransaction()
         {
-            if (_session.Transaction is null)
-                _session.Transaction = _session.Connection.BeginTransaction();
+            if (_db.Transaction is null)
+                _db.Transaction = _db.Connection.BeginTransaction();
             else
                 throw new Exception("Application transaction is already open");
         }
 
         public void Commit()
         {
-            _session.Transaction?.Commit();
+            if(_db.Transaction is not null)
+            {
+                _db.Transaction.Commit();
+                _db.Transaction = null;
+            }
         }
 
         public void RollBack()
         {
-            _session.Transaction?.Rollback();
+            if (_db.Transaction is not null)
+            {
+                _db.Transaction.Rollback();
+                _db.Transaction = null;
+            }
         }
     }
 }

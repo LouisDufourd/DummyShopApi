@@ -14,7 +14,7 @@ namespace DummyShopApi.DAL
         private IDbTransaction _transaction;
         public IDbTransaction Transaction { get => _transaction; set => _transaction = value; }
 
-        public Session(String connectionString, EDBType eDBType)
+        public Session(string connectionString, EDBType eDBType)
         {
             edbType = eDBType;
 

@@ -9,11 +9,12 @@ drop table if exists categories;
 drop table if exists products;
 drop table if exists users;
 drop table if exists addresses;
+drop type if exists product_order_status;
 drop extension if exists unaccent;
 
 create extension unaccent;
 
-create type product_order_status as enum ('None', 'Picked', 'Packed');
+create type product_order_status as enum ('none', 'picked', 'packed');
 
 create table addresses(
 	address_id			serial4 				not null	primary key,
@@ -86,7 +87,7 @@ create table orders_products(
 	order_id_fk			int4	 				not null	references orders(order_id),
 	product_id_fk		int4					not null	references products(product_id),
 	quantity			int4					not null,
-	status				product_order_status	not null	default 'None',
+	status				product_order_status	not null	default 'none',
 	constraint pk_orders_product primary key (order_id_fk, product_id_fk)
 );
 

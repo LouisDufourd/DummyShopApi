@@ -18,13 +18,45 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
         public async Task<IEnumerable<Product>> GetAllAsync(int page = 1, int size = 20)
         {
             string query = """
-                select product_id as id, name, description 
-                from products
-                offset @offset
-                limit @size
+                select 
+                    product_id as id, 
+                    p.name, 
+                    p.description,
+                    c.category_id as CategoryId,
+                    c.name,
+                    c.description
+                from products p
+                join products_categories pc on pc.product_id_fk = p.product_id
+                join categories c on pc.category_id_fk = c.category_id
                 """;
 
-            IEnumerable<Product> products = await _db.Connection.QueryAsync<Product>(query, new { offset = (page - 1) * size, size });
+            IEnumerable<Product> products = await _db.Connection.QueryAsync<Product, Category, Product>(
+                query,
+                param: new { offset = (page - 1) * size, size },
+                map: (product, category) =>
+                {   
+                    if(category != null)
+                    {
+                        product.Categories = new List<Category> { category };
+                    }
+
+                    return product;
+                },
+                splitOn: "CategoryId"
+            );
+
+            products = products
+                .GroupBy(p => p.Id)
+                .Select(g =>
+                {
+                    Product groupedProduct = g.First();
+                    groupedProduct.Categories = g.Select(p => p.Categories.Single()).ToList();
+                    return groupedProduct;
+                })
+                .Skip(page * size - size)
+                .Take(size)
+                .ToList();
+
             return products;
         }
 

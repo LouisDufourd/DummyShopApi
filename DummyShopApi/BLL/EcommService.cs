@@ -1,5 +1,5 @@
-﻿using DummyShopApi.BLL.Interfaces;
-using DummyShopApi.BLL.Models;
+﻿using DummyShopApi.API.DTO.Models;
+using DummyShopApi.BLL.Interfaces;
 using DummyShopApi.DAL;
 using DummyShopApi.DAL.Entities;
 
@@ -43,35 +43,28 @@ namespace DummyShopApi.BLL
             return _db.Order.GetAllAsync(page, size, status);
         }
 
-        public async Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int id, int page = 1, int size = 20)
+        public async Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int id, int page = 1, int size = 20, string? status = null)
         {
-            var ordersProdcuts = await _db.Order.GetProductsAsync(id, page, size);
-
-            return ordersProdcuts.Select((d) =>
-            {
-                var product = d.Key;
-                var status = d.Value;
-                return new OrderProduct(
-                    product.Id,
-                    product.Name,
-                    product.Description,
-                    product.Quantity,
-                    product.Price,
-                    status.ToString()
-                );
-            });
+            return await _db.Order.GetProductsAsync(id, page, size, GetOrderProductStatusFromString(status));
         }
 
-        public async Task PatchProductStatus(int productId, int categoryId, string status)
+        public async Task PatchProductStatus(int productId, int orderId, string status)
         {
             var enumStatus = GetOrderProductStatusFromString(status);
-            await _db.Order.PatchProductStatusAsync(productId, categoryId, enumStatus);
+
+            if (enumStatus == null)
+            {
+                throw new Exception("Status should not be null here");
+            }
+
+            _db.BeginTransaction();
+            await _db.Order.PatchProductStatusAsync(productId: productId, orderId: orderId, status: enumStatus.Value);
         }
 
-        private EOrderProductStatus GetOrderProductStatusFromString(string status)
+        private EOrderProductStatus? GetOrderProductStatusFromString(string? status)
         {
-            EOrderProductStatus enumStatus;
-            switch (status.ToLower())
+            EOrderProductStatus? enumStatus;
+            switch (status?.ToLower())
             {
                 case "none":
                     enumStatus = EOrderProductStatus.None;
@@ -81,6 +74,9 @@ namespace DummyShopApi.BLL
                     break;
                 case "packed":
                     enumStatus = EOrderProductStatus.Packed;
+                    break;
+                case null:
+                    enumStatus = null;
                     break;
                 default:
                     throw new NotImplementedException();

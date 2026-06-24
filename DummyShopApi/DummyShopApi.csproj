@@ -20,4 +20,8 @@
     <Resource Include="initdb.d\ECommerceInit.sql" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="BLL\Models\" />
+  </ItemGroup>
+
 </Project>

@@ -6,6 +6,6 @@ namespace DummyShopApi.DAL
     {
         EDBType EDBType { get; }
         IDbConnection Connection { get; }
-        IDbTransaction Transaction { get; set; }
+        IDbTransaction? Transaction { get; set; }
     }
 }

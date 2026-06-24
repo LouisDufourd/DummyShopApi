@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using DummyShopApi.DAL.Entities;
+using DummyShopApi.Domain.Exceptions;
 using System.Data;
 using System.Drawing;
 
@@ -45,36 +46,26 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return (await _db.Connection.QueryAsync<Order>(query, new { id })).Single();
         }
 
-        public async Task<Dictionary<Product, EOrderProductStatus>> GetProductsAsync(int id, int page = 1, int size = 20)
+        public async Task<IEnumerable<OrderProduct>> GetProductsAsync(int id, int page = 1, int size = 20, EOrderProductStatus? status = null)
         {
             string query = """
                 select
-                    product_id as id,
-                    name,
-                    price,
-                    op.quantity,
-                    description,
-                    status
+                    p.product_id as id,
+                    p.name,
+                    p.price,
+                    p.quantity,
+                    p.description,
+                    op.status
                 from orders_products op
                 join products p on p.product_id = op.product_id_fk
-                where order_id_fk = @id
+                where 
+                    order_id_fk = @id and
+                    (@status is null or op.status = @status::product_order_status)
+                limit @size
+                offset @offset
                 """;
 
-            var productStatus = new Dictionary<int, EOrderProductStatus>();
-            var products = await _db.Connection.QueryAsync<Product, EOrderProductStatus, Product>(query, 
-                (product, status) =>
-                {
-                    productStatus.Add(product.Id, status);
-                    return product;
-                },
-                new { id },
-                splitOn: "status");
-
-            return products
-                .Select(p => new KeyValuePair<Product, EOrderProductStatus>(p, productStatus[p.Id]))
-                .Skip(page * size - size)
-                .Take(size)
-                .ToDictionary();
+            return await _db.Connection.QueryAsync<OrderProduct>(query, new { id, status = status?.ToString().ToLower(), size, offset = page * size - size });
         }
 
         public async Task<Order> PatchOrderStatusAsync(int id, string status)
@@ -96,17 +87,32 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return await GetByIdAsync(id);
         }
 
-        public async Task PatchProductStatusAsync(int categoryId, int productId, EOrderProductStatus status)
+        public async Task PatchProductStatusAsync(int orderId, int productId, EOrderProductStatus status)
         {
             string query = """
                 update orders_products
-                set status = @status
+                set status = @status::product_order_status
                 where 
                     product_id_fk = @productId and
                     order_id_fk = @orderId
                 """;
 
-            await _db.Connection.ExecuteAsync(query, new { categoryId, productId, status });
+            int row = await _db.Connection.ExecuteAsync(
+                query,
+                new { orderId, productId, status = status.ToString().ToLower() },
+                _db.Transaction
+            );
+            
+            if(row == 0)
+            {
+                _db.Transaction.Rollback();
+                throw new NotFoundEntityException("Could not find any product with the specified id that are in the order with the specified id");
+            }
+
+            if(row > 1)
+            {
+                _db.Transaction.Rollback();
+            }
         }
     }
 }
