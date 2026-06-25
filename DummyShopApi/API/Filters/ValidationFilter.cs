@@ -10,8 +10,22 @@ namespace DummyShopApi.API.Filters
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var argument = context.ActionArguments.Values.FirstOrDefault();
+
+            if (argument is null)
+            {
+                await next();
+                return;
+            }
+
             var validatorType = typeof(IValidator<>).MakeGenericType(argument.GetType());
-            var validator = (IValidator) context.HttpContext.RequestServices.GetRequiredService(validatorType);
+            var validator = (IValidator?) context.HttpContext.RequestServices.GetService(validatorType);
+
+            if (validator is null)
+            {
+                await next();
+                return;
+            }
+
             var validatorContext = new ValidationContext<object>(argument);
             ValidationResult result = await validator.ValidateAsync(validatorContext);
 
