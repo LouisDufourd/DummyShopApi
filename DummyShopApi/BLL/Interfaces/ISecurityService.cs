@@ -1,4 +1,4 @@
-﻿namespace DummyShopApi.BLL.Interface
+﻿namespace DummyShopApi.BLL.Interfaces
 {
     public interface ISecurityService
     {
