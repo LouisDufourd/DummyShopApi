@@ -3,7 +3,7 @@ using DummyShopApi.BLL.Interfaces;
 using DummyShopApi.DAL;
 using DummyShopApi.DAL.Entities;
 
-namespace DummyShopApi.BLL
+namespace DummyShopApi.BLL.Implementation
 {
     public class EcommService : IEcomService
     {

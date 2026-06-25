@@ -1,6 +1,6 @@
 ﻿using DummyShopApi.DAL.Entities;
 
-namespace DummyShopApi.DAL.DAO
+namespace DummyShopApi.DAL.DAO.Interfaces
 {
     public interface IInventoryDAO : IGenericReadDAO<Product, int>
     {

@@ -1,6 +1,6 @@
 ﻿namespace DummyShopApi.DAL.Entities
 {
-    public class OrderProduct
+    public class OrderProduct: IEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

@@ -1,7 +1,7 @@
 ﻿using DummyShopApi.DAL.Entities;
 using System.Collections;
 
-namespace DummyShopApi.DAL.DAO
+namespace DummyShopApi.DAL.DAO.Interfaces
 {
     public interface IOrderDAO
     {
