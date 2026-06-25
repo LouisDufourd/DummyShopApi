@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using DummyShopApi.DAL.Entities;
+using DummyShopApi.Domain.Exceptions;
 using Npgsql;
 using System.Drawing;
 using System.Runtime.CompilerServices;
@@ -89,9 +90,15 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                     Product groupedProduct = g.First();
                     groupedProduct.Categories = g.Select(p => p.Categories.Single()).ToList();
                     return groupedProduct;
-                }).ToList();
+                })
+                .ToList();
 
-            return newProducts.First();
+            if(newProducts.Count == 0)
+            {
+                throw new NotFoundEntityException("Unable to find the product using the specified id");
+            }
+
+            return newProducts.Single();
         }
 
         public async Task<Product> PatchQuantityAsync(int id, int quantity)
@@ -102,7 +109,13 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 where product_id = @id
                 """;
 
-            await _db.Connection.ExecuteAsync(query, new { id, quantity });
+            int row = await _db.Connection.ExecuteAsync(query, new { id, quantity }, _db.Transaction);
+
+            if(row == 0)
+            {
+                _db.Transaction.Rollback();
+                throw new NotFoundEntityException("Unable to find the product with specified id");
+            }
 
             return await GetByIdAsync(id);
         }

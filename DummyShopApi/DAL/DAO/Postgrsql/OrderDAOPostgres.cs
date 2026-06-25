@@ -43,7 +43,14 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 where order_id = @id;
                 """;
 
-            return (await _db.Connection.QueryAsync<Order>(query, new { id })).Single();
+            var order = await _db.Connection.QuerySingleAsync<Order>(query, new { id });
+
+            if(order == null)
+            {
+                throw new NotFoundEntityException("Unable to find entity with the specified id");
+            }
+
+            return order;
         }
 
         public async Task<IEnumerable<OrderProduct>> GetProductsAsync(int id, int page = 1, int size = 20, EOrderProductStatus? status = null)
@@ -82,7 +89,12 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 where order_id = @id
                 """;
 
-            await _db.Connection.ExecuteAsync(query, new { status, id });
+            int row = await _db.Connection.ExecuteAsync(query, new { status, id }, _db.Transaction);
+
+            if(row == 0)
+            {
+                throw new NotFoundEntityException("Unable to update the entity with the specified id because it did not exist");
+            }
 
             return await GetByIdAsync(id);
         }
@@ -107,11 +119,6 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             {
                 _db.Transaction.Rollback();
                 throw new NotFoundEntityException("Could not find any product with the specified id that are in the order with the specified id");
-            }
-
-            if(row > 1)
-            {
-                _db.Transaction.Rollback();
             }
         }
     }

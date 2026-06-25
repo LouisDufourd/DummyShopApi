@@ -28,14 +28,20 @@ namespace DummyShopApi.BLL
             return _db.Inventory.GetByIdAsync(id);
         }
 
-        public Task<Order> PatchOrderStatusAsync(int id, string status)
+        public async Task<Order> PatchOrderStatusAsync(int id, string status)
         {
-            return _db.Order.PatchOrderStatusAsync(id, status);
+            _db.BeginTransaction();
+            var order = await _db.Order.PatchOrderStatusAsync(id, status);
+            _db.Commit();
+            return order;
         }
 
-        public Task<Product> PatchProductQuantityAsync(int id, int quantity)
+        public async Task<Product> PatchProductQuantityAsync(int id, int quantity)
         {
-            return _db.Inventory.PatchQuantityAsync(id, quantity);
+            _db.BeginTransaction();
+            var product = await _db.Inventory.PatchQuantityAsync(id, quantity);
+            _db.Commit();
+            return product;
         }
 
         public Task<IEnumerable<Order>> GetOrdersAsync(int page = 1, int size = 20, string? status = null)
@@ -59,6 +65,7 @@ namespace DummyShopApi.BLL
 
             _db.BeginTransaction();
             await _db.Order.PatchProductStatusAsync(productId: productId, orderId: orderId, status: enumStatus.Value);
+            _db.Commit();
         }
 
         private EOrderProductStatus? GetOrderProductStatusFromString(string? status)

@@ -2,14 +2,17 @@
 
 namespace DummyShopApi.DAL.DAO
 {
-    public interface IInventoryDAO: IGenericReadDAO<Product, int>
+    public interface IInventoryDAO : IGenericReadDAO<Product, int>
     {
         /// <summary>
-        /// Set the quantity of a product
+        /// Updates the quantity of a product.
         /// </summary>
-        /// <param name="id">The id of the product</param>
-        /// <param name="quantity">The quantity of the product</param>
-        /// <returns>The updated product</returns>
+        /// <param name="id">The identifier of the product.</param>
+        /// <param name="quantity">The new quantity of the product.</param>
+        /// <returns>The updated product.</returns>
+        /// <exception cref="NotFoundEntityException">
+        /// Thrown when no product with the specified identifier exists.
+        /// </exception>
         public Task<Product> PatchQuantityAsync(int id, int quantity);
     }
 }
