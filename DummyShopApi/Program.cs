@@ -1,6 +1,9 @@
 
+using DummyShopApi.API.Filters;
 using DummyShopApi.BLL;
 using DummyShopApi.DAL;
+using FluentValidation;
+using System.Reflection;
 
 namespace DummyShopApi
 {
@@ -12,9 +15,11 @@ namespace DummyShopApi
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add<ValidationFilter>();
+            });
             builder.Services.AddBLL();
-
             builder.Services.AddDAL((DALOptions options) =>
             {
                 var connectionString = builder.Configuration.GetValue<string>("ConnectionString");
@@ -24,9 +29,11 @@ namespace DummyShopApi
                 options.TypeDB = eDBType;
             });
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+            builder.Services.AddScoped<ValidationFilter>();
 
             var app = builder.Build();
 
@@ -40,7 +47,6 @@ namespace DummyShopApi
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
