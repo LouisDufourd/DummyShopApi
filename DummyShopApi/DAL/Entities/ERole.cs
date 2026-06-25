@@ -3,7 +3,7 @@
     public enum ERole
     {
         Inventory,
-        Picker,
+        Packer,
         Manager
     }
 }
