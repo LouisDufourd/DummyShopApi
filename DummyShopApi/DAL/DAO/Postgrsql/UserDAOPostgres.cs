@@ -21,10 +21,10 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 select 
                     user_id as id,
                     firstname,
-                    lastname,
+                    name as lastname,
                     role
                 from users
-                join user_id_fk = user_id
+                join employees on user_id_fk = user_id
                 where email = @username;
                 """;
 
@@ -44,11 +44,12 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 select
                     password
                 from users
+                join employees on user_id_fk = user_id
                 where email = @username
                 """;
             var PH = new PasswordHasher<string>();
 
-            var hashedPassowrds = await _db.Connection.QueryAsync(selectPasswordQuery, new { username });
+            var hashedPassowrds = await _db.Connection.QueryAsync<string>(selectPasswordQuery, new { username });
 
             if(hashedPassowrds.Count() == 0)
             {
