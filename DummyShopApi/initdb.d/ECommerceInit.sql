@@ -7,14 +7,17 @@ drop table if exists images;
 drop table if exists products_categories;
 drop table if exists categories;
 drop table if exists products;
+drop table if exists employees;
 drop table if exists users;
 drop table if exists addresses;
 drop type if exists product_order_status;
+drop type if exists roles;
 drop extension if exists unaccent;
 
 create extension unaccent;
 
 create type product_order_status as enum ('none', 'picked', 'packed');
+create type roles as enum ('inventory', 'picker', 'manager');
 
 create table addresses(
 	address_id			serial4 				not null	primary key,
@@ -31,12 +34,17 @@ create table users(
 	address_id_fk				int4			not null	references addresses(address_id)	unique,
 	name						varchar(100),
 	firstname					varchar(100),
-	email						varchar(150) 	not null,
+	email						varchar(150) 	not null	unique,
 	password					varchar(255)	not null,
 	created_at					timestamp 		not null	default now(),
 	admin						bool			not null,
 	email_verification_token 	varchar(255),
 	email_verified				bool			not null	default false
+);
+
+create table employees(
+	user_id_fk					serial4			not null	primary key	references users(user_id),
+	role						roles			not null
 );
 
 create table products(

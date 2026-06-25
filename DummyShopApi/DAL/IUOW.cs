@@ -1,4 +1,4 @@
-﻿using DummyShopApi.DAL.DAO;
+﻿using DummyShopApi.DAL.DAO.Interfaces;
 
 namespace DummyShopApi.DAL
 {
@@ -7,6 +7,7 @@ namespace DummyShopApi.DAL
 
         public IInventoryDAO Inventory { get; }
         public IOrderDAO Order { get; }
+        public IUserDAO User { get; }
 
 
         /// <summary>
