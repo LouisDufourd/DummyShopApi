@@ -1,4 +1,5 @@
 ﻿using DummyShopApi.Domain.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -12,7 +13,8 @@ namespace DummyShopApi.API.Filters
         {
             _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
             {
-                { typeof(NotFoundEntityException), HandleNotFoundException }
+                { typeof(NotFoundEntityException), HandleNotFoundException },
+                { typeof(ValidationException), HandleValidationException }
             };
         }
 
@@ -32,24 +34,36 @@ namespace DummyShopApi.API.Filters
                 return;
             }
 
-            if (!context.ModelState.IsValid)
-            {
-                HandleInvalidModelStateException(context);
-                return;
-            }
-
             HandleUnknownException(context);
         }
 
-        private void HandleInvalidModelStateException(ExceptionContext context)
+        private void HandleValidationException(ExceptionContext context)
         {
-            var detail = new ValidationProblemDetails(context.ModelState)
+            // Retrieve the FluentValidation exception that was thrown by the validation filter.
+            var exception = (ValidationException)context.Exception;
+
+            // Group validation errors by property name and convert them to the format
+            // expected by ValidationProblemDetails:
+            // Dictionary<string, string[]>
+            var errors = exception.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            // Build an RFC 7807 compliant response containing all validation errors.
+            var details = new ValidationProblemDetails(errors)
             {
-                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1"
+                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
+                Status = StatusCodes.Status400BadRequest,
+                Title = "One or more validation errors occurred."
             };
 
-            context.Result = new NotFoundObjectResult(detail);
+            // Return a 400 Bad Request response with the validation details.
+            context.Result = new BadRequestObjectResult(details);
 
+            // Indicate that the exception has been handled and should not propagate further.
             context.ExceptionHandled = true;
         }
 
@@ -67,6 +81,7 @@ namespace DummyShopApi.API.Filters
                 StatusCode = StatusCodes.Status500InternalServerError
             };
 
+            Console.WriteLine(context.Exception.Message);
             Console.WriteLine(context.Exception.StackTrace);
 
             context.ExceptionHandled = true;
