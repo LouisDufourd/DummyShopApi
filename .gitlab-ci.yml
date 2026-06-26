@@ -21,7 +21,7 @@ test-job2:
     - echo "which simulates a test that runs 20 seconds longer than test-job1"
     - sleep 20
 
-docker-build:
+deploy-prod:
   stage: deploy
   image: quay.io/buildah/stable
   variables:
