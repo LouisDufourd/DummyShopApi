@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DummyShopApi.DAL.DAO.Interfaces;
 using DummyShopApi.DAL.Entities;
 using DummyShopApi.Domain.Exceptions;
 using System.Data;

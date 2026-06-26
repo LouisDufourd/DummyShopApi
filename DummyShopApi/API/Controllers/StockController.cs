@@ -4,6 +4,7 @@ using DummyShopApi.API.DTO.Response;
 using DummyShopApi.BLL.Interfaces;
 using DummyShopApi.DAL;
 using DummyShopApi.DAL.DAO.Postgrsql;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,9 @@ namespace DummyShopApi.API.Controllers
             _service = ecomService;
         }
 
-        [HttpGet]
+        [HttpGet("inventory")]
+
+        [Authorize(Roles = "Manager, Inventory")]
         public async Task<IActionResult> GetInventory([FromQuery] int page = 1)
         {
             int size = 20;
@@ -37,7 +40,8 @@ namespace DummyShopApi.API.Controllers
             return Ok(inventoryResponse);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("inventory/{id}")]
+        [Authorize(Roles = "Manager, Inventory")]
         public async Task<IActionResult> GetProduct([FromRoute] int id)
         {
             var product = await _service.GetProductAsync(id);
@@ -54,10 +58,11 @@ namespace DummyShopApi.API.Controllers
             return Ok(productResponse);
         }
 
-        [HttpPut("/quantity")]
-        public async Task<IActionResult> UpdateProductQuantity([FromBody] UpdateProductQuantityRequest quantityRequest)
+        [HttpPut("inventory/{id}/quantity")]
+        [Authorize(Roles = "Manager, Inventory")]
+        public async Task<IActionResult> UpdateProductQuantity([FromBody] UpdateProductQuantityRequest quantityRequest, [FromRoute] int id)
         {
-            var product = await _service.PatchProductQuantityAsync(quantityRequest.ProductId, quantityRequest.Quantity);
+            var product = await _service.PatchProductQuantityAsync(id, quantityRequest.Quantity);
 
             var productResponse = new GetProductResponse(
                 id: product.Id,

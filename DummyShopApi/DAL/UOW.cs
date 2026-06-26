@@ -1,4 +1,4 @@
-﻿using DummyShopApi.DAL.DAO;
+﻿using DummyShopApi.DAL.DAO.Interfaces;
 using DummyShopApi.DAL.DAO.Postgrsql;
 
 namespace DummyShopApi.DAL
@@ -7,6 +7,7 @@ namespace DummyShopApi.DAL
     {
         public IInventoryDAO Inventory => CurrentDictionary.GetValueOrDefault(typeof(IInventoryDAO)) as IInventoryDAO;
         public IOrderDAO Order => CurrentDictionary.GetValueOrDefault(typeof(IOrderDAO)) as IOrderDAO;
+        public IUserDAO User => CurrentDictionary.GetValueOrDefault(typeof(IUserDAO)) as IUserDAO;
 
         private readonly ISession _db;
         private readonly Dictionary<Type, object> CurrentDictionary;
@@ -21,6 +22,7 @@ namespace DummyShopApi.DAL
                     {
                         {typeof(IInventoryDAO), new InventoryDAOPostgres(_db)},
                         {typeof(IOrderDAO), new OrderDAOPostgres(_db)},
+                        {typeof(IUserDAO), new UserDAOPostgres(_db) }
                     };
                     break;
             }

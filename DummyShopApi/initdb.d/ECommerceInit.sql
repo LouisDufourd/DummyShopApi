@@ -7,14 +7,17 @@ drop table if exists images;
 drop table if exists products_categories;
 drop table if exists categories;
 drop table if exists products;
+drop table if exists employees;
 drop table if exists users;
 drop table if exists addresses;
 drop type if exists product_order_status;
+drop type if exists roles;
 drop extension if exists unaccent;
 
 create extension unaccent;
 
 create type product_order_status as enum ('none', 'picked', 'packed');
+create type roles as enum ('inventory', 'packer', 'manager');
 
 create table addresses(
 	address_id			serial4 				not null	primary key,
@@ -31,12 +34,17 @@ create table users(
 	address_id_fk				int4			not null	references addresses(address_id)	unique,
 	name						varchar(100),
 	firstname					varchar(100),
-	email						varchar(150) 	not null,
+	email						varchar(150) 	not null	unique,
 	password					varchar(255)	not null,
 	created_at					timestamp 		not null	default now(),
 	admin						bool			not null,
 	email_verification_token 	varchar(255),
 	email_verified				bool			not null	default false
+);
+
+create table employees(
+	user_id_fk					int4			not null	primary key	references users(user_id),
+	role						roles			not null
 );
 
 create table products(
@@ -264,7 +272,7 @@ INSERT INTO users(address_id_fk, name, firstname, email, password, created_at, a
 (8, 'Fournier','Louis','louis.fournier@example.com', '$2b$10$fakehash_louis', now() - interval '43 days', false),
 (9, 'Girard','Jade','jade.girard@example.com', '$2b$10$fakehash_jade', now() - interval '42 days', false),
 (10,'Andre','Liam','liam.andre@example.com', '$2b$10$fakehash_liam', now() - interval '41 days', false),
-(11,'Admin','Shop','admin@shop.local', '$2b$10$fakehash_admin', now() - interval '100 days', true),
+(11,'Admin','Shop','admin@shop.local', 'AQAAAAIAAYagAAAAED6r7A8A7QdciN63qqEno/6w03VxFMDRsjTNNu+MN12RnRLM0jNcsR14Ea3ceE9kRQ==', now() - interval '100 days', true), -- PWD : 0QxjcIBGgIbjT
 (12,'Lopez','Manon','manon.lopez@example.com', '$2b$10$fakehash_manon', now() - interval '40 days', false),
 (13,'Nguyen','Adam','adam.nguyen@example.com', '$2b$10$fakehash_adam', now() - interval '39 days', false),
 (14,'Lefevre','Zoé','zoe.lefevre@example.com', '$2b$10$fakehash_zoe', now() - interval '38 days', false),
@@ -390,5 +398,130 @@ INSERT INTO orders_products(order_id_fk, product_id_fk, quantity) VALUES
 -- order 12 (user 15) : livré
 (12, 9, 1),
 (12, 14, 1);
+
+-- ============================================
+-- Additional products (31-50)
+-- ============================================
+
+INSERT INTO products(name, seller, short_desc, description, discount, price, sells_score, quantity, created_at) VALUES
+('Gaming Keyboard TKL', 'KeyFactory', 'Hot-swappable RGB', 'Compact mechanical keyboard.', 15.00, 129.99, 650, 55, now() - interval '18 days'),
+('Wireless Mouse', 'ProMouse', 'Silent clicks', 'Ergonomic wireless mouse.', NULL, 39.90, 890, 180, now() - interval '17 days'),
+('USB Microphone', 'VocalLab', 'Streaming kit', 'USB microphone with boom arm.', 20.00, 99.90, 310, 35, now() - interval '16 days'),
+('Dual Monitor Arm', 'ErgoDesk', '2 screens', 'Gas spring monitor arm.', NULL, 89.90, 240, 28, now() - interval '15 days'),
+('Laptop Stand', 'ErgoDesk', 'Aluminium', 'Adjustable laptop stand.', NULL, 34.90, 820, 120, now() - interval '14 days'),
+('HDMI Cable 2m', 'CableLab', '4K 60Hz', 'Premium HDMI cable.', NULL, 12.90, 1900, 500, now() - interval '13 days'),
+('USB-C Dock', 'DockEase', '11-in-1', 'Dock with HDMI and Ethernet.', 15.00, 109.90, 380, 40, now() - interval '12 days'),
+('Mechanical Switches x90', 'KeyFactory', 'Linear', 'Pack of 90 switches.', NULL, 49.90, 610, 80, now() - interval '11 days'),
+('Gaming Headset Wireless', 'SoundPeak', 'Low latency', 'Wireless gaming headset.', 30.00, 149.99, 420, 50, now() - interval '10 days'),
+('Wi-Fi USB Adapter', 'NetWave', 'Wi-Fi 6', 'USB wireless adapter.', NULL, 29.90, 760, 150, now() - interval '9 days'),
+('Portable SSD 2TB', 'FlashCore', 'USB-C', 'Fast portable SSD.', 40.00, 189.99, 510, 65, now() - interval '8 days'),
+('Desk Mat XXL', 'DeskGear', '120x60cm', 'Large desk mat.', NULL, 29.99, 980, 210, now() - interval '7 days'),
+('Bluetooth Mouse', 'ProMouse', 'Rechargeable', 'Rechargeable office mouse.', NULL, 24.90, 720, 230, now() - interval '6 days'),
+('Ethernet Switch 16 Ports', 'NetWave', 'Gigabit', '16-port unmanaged switch.', 20.00, 69.90, 190, 30, now() - interval '5 days'),
+('USB-C Hub 5 Ports', 'DockEase', 'Compact', 'Travel USB hub.', NULL, 24.99, 970, 170, now() - interval '4 days'),
+('Wireless Charger', 'Voltify', '15W', 'Fast wireless charging pad.', NULL, 19.99, 1300, 260, now() - interval '3 days'),
+('Laptop Backpack Premium', 'UrbanCarry', '17 inch', 'Water resistant backpack.', 15.00, 79.90, 280, 45, now() - interval '2 days'),
+('RGB LED Strip', 'BrightHome', '5 meters', 'Smart RGB strip.', NULL, 24.90, 1450, 300, now() - interval '1 day'),
+('External HDD 4TB', 'FlashCore', 'USB 3.2', 'External hard drive.', 30.00, 119.90, 370, 70, now()),
+('Gaming Controller', 'PlayGear', 'PC compatible', 'Wireless controller.', NULL, 59.90, 860, 95, now());
+
+-- ============================================
+-- Product categories
+-- ============================================
+
+INSERT INTO products_categories(product_id_fk, category_id_fk) VALUES
+(31,2),(31,1),
+(32,1),
+(33,3),
+(34,4),
+(35,4),
+(36,7),
+(37,1),(37,5),
+(38,2),
+(39,2),(39,3),
+(40,7),
+(41,6),
+(42,4),
+(43,5),
+(44,7),
+(45,5),
+(46,5),
+(47,4),
+(48,8),
+(49,6),
+(50,2);
+
+-- ============================================
+-- Images
+-- ============================================
+
+INSERT INTO images(product_id_fk, url, alt, created_at)
+SELECT
+    p.product_id,
+    format('https://picsum.photos/seed/p%1$s_%2$s/900/700', p.product_id, i.n),
+    format('%s - image %s', p.name, i.n),
+    now()
+FROM products p
+CROSS JOIN (VALUES (1),(2),(3)) i(n)
+WHERE p.product_id BETWEEN 31 AND 50;
+
+-- ============================================
+-- Additional orders (13-20)
+-- ============================================
+
+INSERT INTO orders(order_status_id_fk, user_id_fk, created_at) VALUES
+(2,16, now()-interval '4 days'),
+(3,17, now()-interval '3 days'),
+(4,18, now()-interval '3 days'),
+(2,19, now()-interval '2 days'),
+(4,20, now()-interval '2 days'),
+(5,13, now()-interval '1 day'),
+(3,5, now()-interval '12 hours'),
+(2,8, now()-interval '2 hours');
+
+-- ============================================
+-- Additional order lines
+-- ============================================
+
+INSERT INTO orders_products(order_id_fk, product_id_fk, quantity, status) VALUES
+(13,31,1,'picked'),
+(13,36,2,'picked'),
+
+(14,39,1,'packed'),
+(14,41,1,'packed'),
+(14,42,1,'packed'),
+
+(15,47,1,'packed'),
+(15,48,2,'packed'),
+
+(16,46,1,'none'),
+(16,32,1,'none'),
+
+(17,49,1,'packed'),
+(17,50,1,'packed'),
+(17,35,1,'packed'),
+
+(18,44,1,'none'),
+(18,40,1,'none'),
+
+(19,33,1,'picked'),
+(19,34,1,'picked'),
+(19,45,2,'picked'),
+
+(20,37,1,'none'),
+(20,38,1,'none'),
+(20,43,1,'none'),
+(20,31,1,'none');
+
+-- ============================================
+-- Employees
+-- ============================================
+
+INSERT INTO employees(user_id_fk, role) VALUES
+(11,'manager'),
+(19,'inventory'),
+(18,'inventory'),
+(20,'packer'),
+(15,'packer');
 
 COMMIT;

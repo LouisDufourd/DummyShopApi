@@ -1,4 +1,5 @@
-﻿using DummyShopApi.BLL.Interfaces;
+﻿using DummyShopApi.BLL.Implementation;
+using DummyShopApi.BLL.Interfaces;
 
 namespace DummyShopApi.BLL
 {
@@ -7,6 +8,7 @@ namespace DummyShopApi.BLL
         public static void AddBLL(this IServiceCollection services)
         {
             services.AddTransient<IEcomService, EcommService>();
+            services.AddTransient<ISecurityService, SecurityService>();
         }
     }
 }

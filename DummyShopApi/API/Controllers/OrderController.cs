@@ -4,6 +4,7 @@ using DummyShopApi.API.DTO.Response;
 using DummyShopApi.API.Filters;
 using DummyShopApi.BLL.Interfaces;
 using DummyShopApi.DAL.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,7 @@ namespace DummyShopApi.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Manager, Packer")]
         public async Task<IActionResult> GetOrders([FromQuery] int page = 1, [FromQuery] string? status = null)
         {
             if(page < 1)
@@ -46,6 +48,7 @@ namespace DummyShopApi.API.Controllers
         }
 
         [HttpGet("{id}/products")]
+        [Authorize(Roles = "Manager, Packer, Inventory")]
         public async Task<IActionResult> GetOrderProducts([FromRoute] int id, [FromQuery] int page = 1, [FromQuery] string? status = null)
         {
             int size = 20;
@@ -60,6 +63,7 @@ namespace DummyShopApi.API.Controllers
         }
 
         [HttpPut("status")]
+        [Authorize(Roles = "Manager, Packer")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusRequest updateOrderStatusRequest)
         {
             var order = await _service.PatchOrderStatusAsync(updateOrderStatusRequest.Id, updateOrderStatusRequest.Status);
@@ -68,6 +72,7 @@ namespace DummyShopApi.API.Controllers
         }
 
         [HttpPut("{id}/products/status")]
+        [Authorize(Roles = "Manager, Packer, Inventory")]
         public async Task<IActionResult> UpdateProductStatus([FromBody] UpdateProductStatusRequest updateProductStatus, [FromRoute] int id)
         {
             await _service.PatchProductStatus(updateProductStatus.ProductId, orderId: id, updateProductStatus.Status);
