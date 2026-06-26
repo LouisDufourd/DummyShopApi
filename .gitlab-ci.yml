@@ -1,28 +1,17 @@
 workflow:
   rules:
-    - if : $CI_COMMIT_BRANCH =~ /^master/
-
-variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_HOST: "unix:///runner/services/docker/docker.sock"
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-  IMAGE_LATEST: $CI_REGISTRY_IMAGE:latest
-
-
+  - if: '$CI_COMMIT_BRANCH == "master"'
 build-job:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: build
-  image: mcr.microsoft.com/dotnet/sdk:10.0
   script:
-    - dotnet restore GitlabCI.csproj
-    - dotnet build GitlabCI.csproj -c Release
-
+    - 'dotnet restore "./DummyShopApi/DummyShopApi.csproj"'
+    - 'dotnet build "./DummyShopApi/DummyShopApi.csproj" -c Release -o /app/build'
 
 test-job1:
   stage: test
   script:
     - echo "This job tests something"
-
 
 test-job2:
   stage: test
@@ -30,6 +19,7 @@ test-job2:
     - echo "This job tests something, but takes more time than test-job1."
     - echo "After the echo commands complete, it runs the sleep command for 20 seconds"
     - echo "which simulates a test that runs 20 seconds longer than test-job1"
+    - sleep 20
 
 docker-build:
   stage: deploy
@@ -42,7 +32,7 @@ docker-build:
     # Newer versions of docker can handle the OCI format, but older versions, like
     # the one shipped with Fedora 30, cannot handle the format.
     BUILDAH_FORMAT: docker
-    FQ_IMAGE_NAME: "$CI_REGISTRY_IMAGE/dummyshop"
+    FQ_IMAGE_NAME: "$CI_REGISTRY_IMAGE/toto"
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   #   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -51,4 +41,3 @@ docker-build:
     - buildah build -t $FQ_IMAGE_NAME -f Dockerfile .
     - buildah images
     - buildah push $FQ_IMAGE_NAME
- 
