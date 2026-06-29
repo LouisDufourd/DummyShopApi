@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace TestUnitaire.BLL
 {
-    public class EcommServiceTest
+    public class EcommServiceTests
     {
         private readonly Mock<IUOW> _uow;
         private readonly Mock<IOrderDAO> _orderDao;
@@ -19,7 +19,7 @@ namespace TestUnitaire.BLL
 
         private readonly EcommService _service;
 
-        public EcommServiceTest()
+        public EcommServiceTests()
         {
             _uow = new Mock<IUOW>();
             _orderDao = new Mock<IOrderDAO>();
