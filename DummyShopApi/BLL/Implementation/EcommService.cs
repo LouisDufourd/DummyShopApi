@@ -13,7 +13,7 @@ namespace DummyShopApi.BLL.Implementation
             _db = db;
         }
 
-        public Task<Order> GetCommandAsync(int id)
+        public Task<Order> GetOrderAsync(int id)
         {
             return _db.Order.GetByIdAsync(id);
         }
