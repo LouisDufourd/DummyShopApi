@@ -29,7 +29,7 @@ namespace DummyShopApi.BLL.Implementation
 
             var user = await _db.User.GetUserByUsername(username);
 
-            return GenerateJwtToken(username, user.role);
+            return GenerateJwtToken(username, user.Role);
         }
 
         private string GenerateJwtToken(string username, ERole role)
