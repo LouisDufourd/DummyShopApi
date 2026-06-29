@@ -12,7 +12,7 @@ namespace DummyShopApi.API.DTO.Request
         public UpdateProductQuantityRequestValidator()
         {
             RuleFor(x => x.Quantity)
-                .GreaterThanOrEqualTo(1)
+                .GreaterThanOrEqualTo(0)
                 .WithMessage("The quantity must be positive");
         }
     }
