@@ -100,7 +100,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return await GetByIdAsync(id);
         }
 
-        public async Task PatchProductStatusAsync(int orderId, int productId, EOrderProductStatus status)
+        public async Task PatchProductStatusAsync(int productId, int orderId, EOrderProductStatus status)
         {
             string query = """
                 update orders_products

@@ -62,6 +62,6 @@ namespace DummyShopApi.DAL.DAO.Interfaces
         /// <exception cref="NotFoundEntityException">
         /// Thrown when the specified order or product does not exist.
         /// </exception>
-        public Task PatchProductStatusAsync(int orderId, int productId, EOrderProductStatus status);
+        public Task PatchProductStatusAsync(int productId, int orderId, EOrderProductStatus status);
     }
 }
