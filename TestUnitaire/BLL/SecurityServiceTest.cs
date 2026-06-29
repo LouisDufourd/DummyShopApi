@@ -10,16 +10,41 @@ using System.Security.Claims;
 
 namespace TestUnitaire.BLL;
 
-
-public class SecurityServiceTest
+public class SecurityServiceTests
 {
-    [Fact]
-    public async Task SuccesfullLogin()
-    {
-        string username = "admin";
-        string password = "admin";
+    private readonly Mock<IUOW> _uow;
+    private readonly Mock<IUserDAO> _userDao;
+    private readonly IConfiguration _configuration;
 
-        var user = new User()
+    private readonly SecurityService _service;
+
+    public SecurityServiceTests()
+    {
+        _userDao = new Mock<IUserDAO>();
+        _uow = new Mock<IUOW>();
+
+        _uow.Setup(x => x.User)
+            .Returns(_userDao.Object);
+
+        _configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Jwt:Key"] = "6kMdarlfRQRWA3Sj9/gQEIef6JsYXjctdeGCVVW/nX0=",
+                ["Jwt:Issuer"] = "DummyShopApi",
+                ["Jwt:ExpireDays"] = "1"
+            })
+            .Build();
+
+        _service = new SecurityService(_configuration, _uow.Object);
+    }
+
+    [Fact]
+    public async Task SuccessfulLogin()
+    {
+        const string username = "admin";
+        const string password = "admin";
+
+        var user = new User
         {
             Id = 1,
             FirstName = "admin",
@@ -27,126 +52,66 @@ public class SecurityServiceTest
             Role = ERole.Manager
         };
 
-        IUserDAO userDao = Mock.Of<IUserDAO>();
-        Mock.Get(userDao)
-            .Setup(userDao => userDao.Login(username, password))
-            .ReturnsAsync(() => true);
-        Mock.Get(userDao)
-            .Setup(userDao => userDao.GetUserByUsername(username))
+        _userDao
+            .Setup(x => x.Login(username, password))
+            .ReturnsAsync(true);
+
+        _userDao
+            .Setup(x => x.GetUserByUsername(username))
             .ReturnsAsync(user);
 
-        IUOW UOW = Mock.Of<IUOW>();
-        Mock.Get(UOW)
-            .Setup(UOW => UOW.User)
-            .Returns(userDao);
+        var token = await _service.SignIn(username, password);
 
-        IConfiguration configuration = Mock.Of<IConfiguration>();
-        Mock.Get(configuration)
-            .Setup(configuration => configuration["Jwt:Key"])
-            .Returns("6kMdarlfRQRWA3Sj9/gQEIef6JsYXjctdeGCVVW/nX0=");
-        Mock.Get(configuration)
-            .Setup(configuration => configuration["Jwt:ExpireDays"])
-            .Returns("1");
-        Mock.Get(configuration)
-            .Setup(configuration => configuration["Jwt:Issuer"])
-            .Returns("DummyShopApi");
-
-        var service = new SecurityService(configuration, UOW);
-
-        string token = await service.SignIn(username, password);
+        Assert.False(string.IsNullOrWhiteSpace(token));
 
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
         Assert.Equal(username, jwt.Subject);
-        Assert.Contains(jwt.Claims, c => c.Type == ClaimTypes.Role && c.Value == "Manager");
 
-        return;
+        Assert.Contains(jwt.Claims,
+            c => c.Type == ClaimTypes.Role &&
+                 c.Value == nameof(ERole.Manager));
+
+        _userDao.Verify(x => x.Login(username, password), Times.Once);
+        _userDao.Verify(x => x.GetUserByUsername(username), Times.Once);
     }
 
     [Fact]
-    public async Task UnsuccessfullLogin()
+    public async Task UnsuccessfulLogin()
     {
-        string username = "admin";
-        string password = "admin";
+        const string username = "admin";
+        const string password = "admin";
 
-        var user = new User()
-        {
-            Id = 1,
-            FirstName = "admin",
-            LastName = "admin",
-            Role = ERole.Manager
-        };
+        _userDao
+            .Setup(x => x.Login(username, password))
+            .ReturnsAsync(false);
 
-        IUserDAO userDao = Mock.Of<IUserDAO>();
-        Mock.Get(userDao)
-            .Setup(userDao => userDao.Login(username, password))
-            .ReturnsAsync(() => false);
-        Mock.Get(userDao)
-            .Setup(userDao => userDao.GetUserByUsername(username))
-            .ReturnsAsync(user);
+        await Assert.ThrowsAsync<InvalidLoginException>(
+            () => _service.SignIn(username, password));
 
-        IUOW UOW = Mock.Of<IUOW>();
-        Mock.Get(UOW)
-            .Setup(UOW => UOW.User)
-            .Returns(userDao);
-
-        IConfiguration configuration = Mock.Of<IConfiguration>();
-
-        var service = new SecurityService(configuration, UOW);
-
-        await Assert.ThrowsAsync<InvalidLoginException>(() => service.SignIn(username, password));
+        _userDao.Verify(x => x.Login(username, password), Times.Once);
+        _userDao.Verify(x => x.GetUserByUsername(It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
-    public async Task UnkownUser()
+    public async Task UnknownUser_ShouldThrow()
     {
-        //NotFoundEntityException
-        string username = "admin";
-        string password = "admin";
+        const string username = "admin";
+        const string password = "admin";
 
-        var user = new User()
-        {
-            Id = 1,
-            FirstName = "admin",
-            LastName = "admin",
-            Role = ERole.Manager
-        };
+        _userDao
+            .Setup(x => x.Login(username, password))
+            .ReturnsAsync(true);
 
-        IUserDAO userDao = Mock.Of<IUserDAO>();
-        Mock.Get(userDao)
-            .Setup(userDao => userDao.Login(username, password))
-            .ReturnsAsync(() => false);
-        Mock.Get(userDao)
-            .Setup(userDao => userDao.GetUserByUsername(username))
-            .ThrowsAsync(new NotFoundEntityException("Unable to find user with the specidied username"));
+        _userDao
+            .Setup(x => x.GetUserByUsername(username))
+            .ThrowsAsync(new NotFoundEntityException(
+                "Unable to find user with the specified username"));
 
-        IUOW UOW = Mock.Of<IUOW>();
-        Mock.Get(UOW)
-            .Setup(UOW => UOW.User)
-            .Returns(userDao);
+        await Assert.ThrowsAsync<NotFoundEntityException>(
+            () => _service.SignIn(username, password));
 
-        IConfiguration configuration = Mock.Of<IConfiguration>();
-
-        var service = new SecurityService(configuration, UOW);
-
-        await Assert.ThrowsAsync<InvalidLoginException>(() => service.SignIn(username, password));
+        _userDao.Verify(x => x.Login(username, password), Times.Once);
+        _userDao.Verify(x => x.GetUserByUsername(username), Times.Once);
     }
-
-    /*public async Task TokenGeneration()
-    {
-        IUOW UOW = Mock.Of<IUOW>();
-
-        IConfiguration configuration = Mock.Of<IConfiguration>();
-        Mock.Get(configuration)
-            .Setup(configuration => configuration["Jwt:Key"])
-            .Returns("6kMdarlfRQRWA3Sj9/gQEIef6JsYXjctdeGCVVW/nX0=");
-        Mock.Get(configuration)
-            .Setup(configuration => configuration["Jwt:ExpireDays"])
-            .Returns("1");
-        Mock.Get(configuration)
-            .Setup(configuration => configuration["Jwt:Issuer"])
-            .Returns("DummyShopApi");
-
-        var service = new SecurityService(configuration, UOW);
-    }*/
 }
