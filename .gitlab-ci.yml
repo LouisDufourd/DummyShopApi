@@ -8,10 +8,15 @@ build-job:
     - 'dotnet restore "./DummyShopApi/DummyShopApi.csproj"'
     - 'dotnet build "./DummyShopApi/DummyShopApi.csproj" -c Release -o /app/build'
 
-test-job1:
+test-unitaire:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: test
   script:
-    - echo "This job tests something"
+    - dotnet test TestUnitaire/TestUnitaire.csproj -c Release --logger "trx"
+  artifacts:
+    when: always
+    paths:
+      - TestUnitaire/TestResults/
 
 test-job2:
   stage: test
