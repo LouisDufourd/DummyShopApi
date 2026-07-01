@@ -4,6 +4,7 @@ using DummyShopApi.DAL.Entities;
 using DummyShopApi.Domain.Exceptions;
 using System.Data;
 using System.Drawing;
+using System.Text;
 
 namespace DummyShopApi.DAL.DAO.Postgrsql
 {
@@ -46,7 +47,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
 
             var order = await _db.Connection.QuerySingleAsync<Order>(query, new { id });
 
-            if(order == null)
+            if (order == null)
             {
                 throw new NotFoundEntityException("Unable to find entity with the specified id");
             }
@@ -56,7 +57,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
 
         public async Task<IEnumerable<OrderProduct>> GetProductsAsync(int id, int page = 1, int size = 20, EOrderProductStatus? status = null)
         {
-            string query = """
+            var query = new StringBuilder("""
                 select
                     p.product_id as id,
                     p.name,
@@ -66,21 +67,34 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                     op.status
                 from orders_products op
                 join products p on p.product_id = op.product_id_fk
-                where 
-                    order_id_fk = @id and
-                    (@status is null or op.status = @status::product_order_status)
-                limit @size
-                offset @offset
-                """;
+                where order_id_fk = @id
+             """);
 
-            return await _db.Connection.QueryAsync<OrderProduct>(query, new { id, status = status?.ToString().ToLower(), size, offset = page * size - size });
+            var parameters = new DynamicParameters();
+            parameters.Add("id", id);
+            parameters.Add("size", size);
+            parameters.Add("offset", (page - 1) * size);
+
+            if (status.HasValue)
+            {
+                query.AppendLine("and op.status = @status::product_order_status");
+                parameters.Add("status", status.Value.ToString().ToLower());
+            }
+
+            query.AppendLine();
+            query.AppendLine("limit @size");
+            query.AppendLine("offset @offset");
+
+            var value = query.ToString();
+
+            return await _db.Connection.QueryAsync<OrderProduct>(query.ToString(), parameters);
         }
 
         public async Task<Order> PatchOrderStatusAsync(int id, string status)
         {
             string query = """
                 update orders 
-                set order_status_id = (
+                set order_status_id_fk = (
                     select 
                         order_status_id 
                     from orders_status 
@@ -92,7 +106,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
 
             int row = await _db.Connection.ExecuteAsync(query, new { status, id }, _db.Transaction);
 
-            if(row == 0)
+            if (row == 0)
             {
                 throw new NotFoundEntityException("Unable to update the entity with the specified id because it did not exist");
             }
@@ -115,8 +129,8 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                 new { orderId, productId, status = status.ToString().ToLower() },
                 _db.Transaction
             );
-            
-            if(row == 0)
+
+            if (row == 0)
             {
                 _db.Transaction.Rollback();
                 throw new NotFoundEntityException("Could not find any product with the specified id that are in the order with the specified id");
