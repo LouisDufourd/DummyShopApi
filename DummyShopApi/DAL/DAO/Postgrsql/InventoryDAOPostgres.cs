@@ -24,6 +24,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
                     product_id as id, 
                     p.name, 
                     p.description,
+                    p.quantity,
                     c.category_id as CategoryId,
                     c.name,
                     c.description
