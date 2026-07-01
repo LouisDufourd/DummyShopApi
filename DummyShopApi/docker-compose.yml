@@ -14,9 +14,7 @@ services:
     ports:
       - 8083:8080
   api:
-    build:
-      dockerfile: ./DummyShopApi/Dockerfile
-      context: ..
+    image: registry.gitlab-formation.2isa.eu/ldufourd/dummyshopapi/toto:latest
     container_name: dummyshop-api
     environment:
       ConnectionString: Server=postgresql;database=ecom;uid=website;Pwd=CuL2p3meU8jp9A8GJVhu;Port=5432
