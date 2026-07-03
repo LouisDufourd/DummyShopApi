@@ -13,19 +13,11 @@ test-unitaire:
   stage: test
   script:
     - dotnet test TestUnitaire/TestUnitaire.csproj -c Release --logger "trx"
-  artifacts:
-    when: always
-    paths:
-      - TestUnitaire/Results/
 
 test-integration:
   stage: test
   script:
     - dotnet test TestIntegrations/TestIntegrations.csproj -c Release --logger "trx"
-  artifacts:
-    when: always
-    paths:
-      - TestIntegrations/Results
 
 deploy-prod:
   stage: deploy
