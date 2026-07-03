@@ -16,7 +16,7 @@ test-unitaire:
   artifacts:
     when: always
     paths:
-      - TestUnitaire/TestResults/
+      - TestUnitaire/Results/
 
 test-integration:
   stage: test
@@ -25,7 +25,7 @@ test-integration:
   artifacts:
     when: always
     paths:
-      - TestIntegrations/TestResults
+      - TestIntegrations/Results
 
 deploy-prod:
   stage: deploy
