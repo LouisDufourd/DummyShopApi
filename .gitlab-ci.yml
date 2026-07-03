@@ -15,6 +15,7 @@ test-unitaire:
     - dotnet test TestUnitaire/TestUnitaire.csproj -c Release --logger "trx"
 
 test-integration:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: test
   script:
     - dotnet test TestIntegrations/TestIntegrations.csproj -c Release --logger "trx"
