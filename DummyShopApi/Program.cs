@@ -25,6 +25,7 @@ namespace DummyShopApi
             builder.Services.AddControllers(options =>
             {
                 options.Filters.Add<ValidationFilter>();
+                options.Filters.Add<ApiExceptionFilterAttribute>();
             });
             builder.Services.AddBLL();
             builder.Services.AddDAL((DALOptions options) =>

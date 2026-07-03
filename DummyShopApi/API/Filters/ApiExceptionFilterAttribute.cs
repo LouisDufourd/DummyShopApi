@@ -14,7 +14,8 @@ namespace DummyShopApi.API.Filters
             _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
             {
                 { typeof(NotFoundEntityException), HandleNotFoundException },
-                { typeof(ValidationException), HandleValidationException }
+                { typeof(ValidationException), HandleValidationException },
+                { typeof(InvalidLoginException), HandleInvalidLoginException }
             };
         }
 
@@ -102,6 +103,20 @@ namespace DummyShopApi.API.Filters
             context.Result = new NotFoundObjectResult(details);
 
             context.ExceptionHandled = true;
+        }
+
+        private void HandleInvalidLoginException(ExceptionContext context)
+        {
+            var exception = context.Exception as InvalidLoginException;
+
+            var detail = new ProblemDetails()
+            {
+                Type = "",
+                Title = "Invalid username or password",
+                Detail = exception?.Message
+            };
+
+            context.Result = new UnauthorizedObjectResult(detail);
         }
     }
 }
