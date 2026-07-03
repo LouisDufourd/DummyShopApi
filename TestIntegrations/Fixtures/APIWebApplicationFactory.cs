@@ -20,6 +20,7 @@ namespace TestIntegrations.Fixtures
                 Configuration = new ConfigurationBuilder()
                     .SetBasePath(AppContext.BaseDirectory)
                     .AddJsonFile("appsettings.Integrations.json")
+                    .AddEnvironmentVariables()
                     .Build();
 
                 config.AddConfiguration(Configuration);
