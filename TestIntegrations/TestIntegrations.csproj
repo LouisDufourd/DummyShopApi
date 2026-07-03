@@ -60,8 +60,4 @@
     </Resource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TestResults\" />
-  </ItemGroup>
-
 </Project>
