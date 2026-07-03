@@ -36,10 +36,10 @@ namespace DummyShopApi.BLL.Implementation
         {
             var claims = new List<Claim>()
             {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, username),
-                new Claim(ClaimTypes.Role, role.ToString())
+                new(JwtRegisteredClaimNames.Sub, username),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(ClaimTypes.NameIdentifier, username),
+                new(ClaimTypes.Role, role.ToString())
             };
 
             var key = new SymmetricSecurityKey(Convert.FromBase64String(_configuration["Jwt:Key"]!));
