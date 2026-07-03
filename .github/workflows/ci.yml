@@ -1,0 +1,105 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  POSTGRES_DB: ecommerce
+  POSTGRES_USER: api
+  POSTGRES_PASSWORD: mga6ugr_kgz1aur!YBQ
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore DummyShopApi/DummyShopApi.csproj
+
+      - name: Build
+        run: dotnet build DummyShopApi/DummyShopApi.csproj --configuration Release --no-restore
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Run unit tests
+        run: dotnet test TestUnitaire/TestUnitaire.csproj --configuration Release --logger trx
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: ecommerce
+          POSTGRES_USER: api
+          POSTGRES_PASSWORD: mga6ugr_kgz1aur!YBQ
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U api -d ecommerce"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      ConnectionString: Host=localhost;Port=5432;Database=ecommerce;Username=api;Password=mga6ugr_kgz1aur!YBQ
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Run integration tests
+        run: dotnet test TestIntegrations/TestIntegrations.csproj --configuration Release --logger trx
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - unit-tests
+      - integration-tests
+
+    if: github.ref == 'refs/heads/master'
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build image
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository }}/toto:latest \
+            -f DummyShopApi/Dockerfile .
+
+      - name: Push image
+        run: |
+          docker push ghcr.io/${{ github.repository }}/toto:latest
