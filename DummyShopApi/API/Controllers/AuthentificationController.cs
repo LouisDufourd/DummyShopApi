@@ -1,6 +1,7 @@
 ﻿using DummyShopApi.API.DTO.Request;
 using DummyShopApi.API.DTO.Response;
 using DummyShopApi.BLL.Interfaces;
+using DummyShopApi.DAL.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +11,13 @@ namespace DummyShopApi.API.Controllers
     [ApiController]
     public class AuthentificationController : ControllerBase
     {
-        ISecurityService _security;
+        private readonly ISecurityService _security;
+        private readonly IEcomService _ecom;
 
-        public AuthentificationController(ISecurityService security)
+        public AuthentificationController(ISecurityService security, IEcomService ecom)
         {
             _security = security;
+            _ecom = ecom;
         }
 
         [HttpPost("login")]
@@ -22,7 +25,9 @@ namespace DummyShopApi.API.Controllers
         {
             var key = await _security.SignIn(username: request.Username, password: request.Password);
 
-            return Ok(new LoginResponse(key));
+            var user = await _ecom.GetUser(request.Username);
+
+            return Ok(new LoginResponse(key, user.Role.ToString()));
         }
 
         [HttpPost("loginSwagger")]

@@ -13,5 +13,6 @@ namespace DummyShopApi.BLL.Interfaces
         Task<Product> PatchProductQuantityAsync(int productId, int quantity);
         Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int id, int page = 1, int size = 20, string? status = null);
         Task PatchProductStatus(int productId, int orderId, string status);
+        Task<User> GetUser(string username);
     }
 }

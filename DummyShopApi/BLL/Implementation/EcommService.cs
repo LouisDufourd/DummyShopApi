@@ -68,6 +68,11 @@ namespace DummyShopApi.BLL.Implementation
             _db.Commit();
         }
 
+        public async Task<User> GetUser(string username)
+        {
+            return await _db.User.GetUserByUsername(username);
+        }
+
         private EOrderProductStatus? GetOrderProductStatusFromString(string? status)
         {
             EOrderProductStatus? enumStatus;
