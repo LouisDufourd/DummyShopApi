@@ -27,7 +27,7 @@ test-integration:
   image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: test
   variables:
-    ConnectionStrings: Host=postgres;Database=ecommerce;Username=api;Password=mga6ugr_kgz1aur!YBQ
+    ConnectionString: Host=postgres;Database=ecommerce;Username=api;Password=mga6ugr_kgz1aur!YBQ
   script:
     - dotnet test TestIntegrations/TestIntegrations.csproj -c Release --logger "trx"
 
