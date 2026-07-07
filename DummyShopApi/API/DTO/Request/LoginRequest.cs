@@ -1,10 +1,13 @@
 ﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace DummyShopApi.API.DTO.Request
 {
     public class LoginRequest
     {
+        [Required]
         public string Username { get; set; }
+        [Required]
         public string Password { get; set; }
     }
 

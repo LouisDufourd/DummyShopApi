@@ -1,9 +1,11 @@
 ﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace DummyShopApi.API.DTO.Request
 {
     public class UpdateProductQuantityRequest
     {
+        [Required]
         public int Quantity { get; set; }
     }
 
