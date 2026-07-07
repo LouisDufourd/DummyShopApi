@@ -1,7 +1,13 @@
 ﻿using DummyShopApi.DAL.Entities;
+using DummyShopApi.Domain.Exceptions;
 
 namespace DummyShopApi.DAL.DAO.Interfaces
 {
+    /// <summary>
+    /// Provides generic asynchronous read operations for an entity.
+    /// </summary>
+    /// <typeparam name="T">The entity type handled by the DAO.</typeparam>
+    /// <typeparam name="U">The type of the entity identifier.</typeparam>
     public interface IGenericReadDAO<T, U> where T : IEntity
     {
         /// <summary>

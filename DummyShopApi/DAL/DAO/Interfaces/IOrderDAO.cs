@@ -1,4 +1,5 @@
 ﻿using DummyShopApi.DAL.Entities;
+using DummyShopApi.Domain.Exceptions;
 using System.Collections;
 
 namespace DummyShopApi.DAL.DAO.Interfaces

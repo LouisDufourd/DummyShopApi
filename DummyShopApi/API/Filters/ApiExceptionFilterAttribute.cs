@@ -5,10 +5,18 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace DummyShopApi.API.Filters
 {
-    public class ApiExceptionFilterAttribute: ExceptionFilterAttribute
+    /// <summary>
+    /// Global API exception filter used to convert application exceptions
+    /// into standardized HTTP responses.
+    /// </summary>
+    public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
         private readonly Dictionary<Type, Action<ExceptionContext>> _exceptionHandlers;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiExceptionFilterAttribute"/> class
+        /// and registers exception handlers for known exception types.
+        /// </summary>
         public ApiExceptionFilterAttribute()
         {
             _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
@@ -19,35 +27,53 @@ namespace DummyShopApi.API.Filters
             };
         }
 
+        /// <summary>
+        /// Called when an exception occurs during action execution.
+        /// </summary>
+        /// <param name="context">
+        /// The exception context containing information about the thrown exception.
+        /// </param>
         public override void OnException(ExceptionContext context)
         {
             HandleException(context);
             base.OnException(context);
         }
 
+        /// <summary>
+        /// Handles an exception by executing a registered exception handler.
+        /// Unknown exceptions are handled as internal server errors.
+        /// </summary>
+        /// <param name="context">
+        /// The context containing the exception to handle.
+        /// </param>
         public void HandleException(ExceptionContext context)
         {
             Type type = context.Exception.GetType();
 
-            var success = _exceptionHandlers.TryGetValue(type, out Action<ExceptionContext> action);
+            var success = _exceptionHandlers.TryGetValue(
+                type,
+                out Action<ExceptionContext> action);
 
-            if (success)
+            if (action != null)
             {
-                action!.Invoke(context);
+                action.Invoke(context);
                 return;
             }
 
             HandleUnknownException(context);
         }
 
+        /// <summary>
+        /// Handles FluentValidation exceptions and returns a 400 Bad Request
+        /// response containing validation errors grouped by property name.
+        /// </summary>
+        /// <param name="context">
+        /// The context containing the validation exception.
+        /// </param>
         private void HandleValidationException(ExceptionContext context)
         {
-            // Retrieve the FluentValidation exception that was thrown by the validation filter.
             var exception = (ValidationException)context.Exception;
 
-            // Group validation errors by property name and convert them to the format
-            // expected by ValidationProblemDetails:
-            // Dictionary<string, string[]>
             var errors = exception.Errors
                 .GroupBy(e => e.PropertyName)
                 .ToDictionary(
@@ -55,7 +81,6 @@ namespace DummyShopApi.API.Filters
                     g => g.Select(e => e.ErrorMessage).ToArray()
                 );
 
-            // Build an RFC 7807 compliant response containing all validation errors.
             var details = new ValidationProblemDetails(errors)
             {
                 Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
@@ -63,13 +88,18 @@ namespace DummyShopApi.API.Filters
                 Title = "One or more validation errors occurred."
             };
 
-            // Return a 400 Bad Request response with the validation details.
             context.Result = new BadRequestObjectResult(details);
 
-            // Indicate that the exception has been handled and should not propagate further.
             context.ExceptionHandled = true;
         }
 
+        /// <summary>
+        /// Handles unexpected exceptions and returns a generic
+        /// 500 Internal Server Error response.
+        /// </summary>
+        /// <param name="context">
+        /// The context containing the unhandled exception.
+        /// </param>
         private static void HandleUnknownException(ExceptionContext context)
         {
             var details = new ProblemDetails
@@ -90,6 +120,13 @@ namespace DummyShopApi.API.Filters
             context.ExceptionHandled = true;
         }
 
+        /// <summary>
+        /// Handles entity not found exceptions and returns a
+        /// 404 Not Found response.
+        /// </summary>
+        /// <param name="context">
+        /// The context containing the not found exception.
+        /// </param>
         private void HandleNotFoundException(ExceptionContext context)
         {
             var exception = context.Exception as NotFoundEntityException;
@@ -98,8 +135,7 @@ namespace DummyShopApi.API.Filters
             {
                 Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
                 Title = "The specified resource was not found.",
-                Detail = exception?.Message,
-
+                Detail = exception?.Message
             };
 
             context.Result = new NotFoundObjectResult(details);
@@ -107,6 +143,13 @@ namespace DummyShopApi.API.Filters
             context.ExceptionHandled = true;
         }
 
+        /// <summary>
+        /// Handles authentication failures caused by invalid credentials
+        /// and returns a 401 Unauthorized response.
+        /// </summary>
+        /// <param name="context">
+        /// The context containing the invalid login exception.
+        /// </param>
         private void HandleInvalidLoginException(ExceptionContext context)
         {
             var exception = context.Exception as InvalidLoginException;
@@ -119,6 +162,8 @@ namespace DummyShopApi.API.Filters
             };
 
             context.Result = new UnauthorizedObjectResult(detail);
+
+            context.ExceptionHandled = true;
         }
     }
 }
