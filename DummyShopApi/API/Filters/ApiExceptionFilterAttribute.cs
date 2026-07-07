@@ -7,7 +7,7 @@ namespace DummyShopApi.API.Filters
 {
     public class ApiExceptionFilterAttribute: ExceptionFilterAttribute
     {
-        private readonly IDictionary<Type, Action<ExceptionContext>> _exceptionHandlers;
+        private readonly Dictionary<Type, Action<ExceptionContext>> _exceptionHandlers;
 
         public ApiExceptionFilterAttribute()
         {
@@ -29,9 +29,11 @@ namespace DummyShopApi.API.Filters
         {
             Type type = context.Exception.GetType();
 
-            if (_exceptionHandlers.ContainsKey(type))
+            var success = _exceptionHandlers.TryGetValue(type, out Action<ExceptionContext> action);
+
+            if (success)
             {
-                _exceptionHandlers[type].Invoke(context);
+                action!.Invoke(context);
                 return;
             }
 
@@ -68,7 +70,7 @@ namespace DummyShopApi.API.Filters
             context.ExceptionHandled = true;
         }
 
-        private void HandleUnknownException(ExceptionContext context)
+        private static void HandleUnknownException(ExceptionContext context)
         {
             var details = new ProblemDetails
             {

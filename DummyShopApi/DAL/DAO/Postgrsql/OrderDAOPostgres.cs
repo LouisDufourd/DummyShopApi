@@ -85,8 +85,6 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             query.AppendLine("limit @size");
             query.AppendLine("offset @offset");
 
-            var value = query.ToString();
-
             return await _db.Connection.QueryAsync<OrderProduct>(query.ToString(), parameters);
         }
 

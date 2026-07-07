@@ -36,10 +36,10 @@ namespace DummyShopApi.BLL.Implementation
             return order;
         }
 
-        public async Task<Product> PatchProductQuantityAsync(int id, int quantity)
+        public async Task<Product> PatchProductQuantityAsync(int productId, int quantity)
         {
             _db.BeginTransaction();
-            var product = await _db.Inventory.PatchQuantityAsync(id, quantity);
+            var product = await _db.Inventory.PatchQuantityAsync(productId, quantity);
             _db.Commit();
             return product;
         }
@@ -73,7 +73,7 @@ namespace DummyShopApi.BLL.Implementation
             return await _db.User.GetUserByUsername(username);
         }
 
-        private EOrderProductStatus? GetOrderProductStatusFromString(string? status)
+        private static EOrderProductStatus? GetOrderProductStatusFromString(string? status)
         {
             EOrderProductStatus? enumStatus;
             switch (status?.ToLower())

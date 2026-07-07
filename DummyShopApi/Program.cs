@@ -82,7 +82,7 @@ namespace DummyShopApi
                         {
                             Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "jwt" }
                         },
-                        new string[] {}
+                        Array.Empty<string>()
                     }
                 });
             });
