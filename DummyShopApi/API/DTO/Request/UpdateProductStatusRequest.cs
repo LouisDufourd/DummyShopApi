@@ -1,12 +1,15 @@
 ﻿using DummyShopApi.DAL.Entities;
 using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace DummyShopApi.API.DTO.Request
 {
     public class UpdateProductStatusRequest
     {
+        [Required]
         public int ProductId { get; set; }
+        [Required]
         public string Status { get; set; }
     }
 
