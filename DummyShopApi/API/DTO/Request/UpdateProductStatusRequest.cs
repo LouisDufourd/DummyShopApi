@@ -2,14 +2,17 @@
 using FluentValidation;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace DummyShopApi.API.DTO.Request
 {
     public class UpdateProductStatusRequest
     {
         [Required]
+        [JsonRequired]
         public int ProductId { get; set; }
         [Required]
+        [JsonRequired]
         public string Status { get; set; }
     }
 
