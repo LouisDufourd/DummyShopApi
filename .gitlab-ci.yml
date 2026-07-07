@@ -1,3 +1,5 @@
+image: mcr.microsoft.com/dotnet/sdk:8.0
+
 default:
    services:
      - postgres
@@ -5,7 +7,9 @@ default:
 variables:
   POSTGRES_DB: ecommerce
   POSTGRES_USER: api
-  POSTGRES_PASSWORD: mga6ugr_kgz1aur!YBQ
+  POSTGRES_PASSWORD: mga6ugr_kgz1aur!YBQ  
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
 
 workflow:
   rules:
@@ -16,6 +20,29 @@ build-job:
   script:
     - 'dotnet restore "./DummyShopApi/DummyShopApi.csproj"'
     - 'dotnet build "./DummyShopApi/DummyShopApi.csproj" -c Release -o /app/build'
+  
+build-sonar:
+  stage: build
+  
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+      
+  script: 
+      - "dotnet tool install --global dotnet-sonarscanner"
+      - "export PATH=\"$PATH:$HOME/.dotnet/tools\""
+      - "dotnet sonarscanner begin /k:\"ldufourd_dummyshopapi_538b97a1-79a8-4af3-9ab3-cab7f527e071\" /d:sonar.token=\"$SONAR_TOKEN\" /d:\"sonar.host.url=$SONAR_HOST_URL\" "
+      - "dotnet build"
+      - "dotnet sonarscanner end /d:sonar.token=\"$SONAR_TOKEN\""
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 
 test-unitaire:
   image: mcr.microsoft.com/dotnet/sdk:8.0

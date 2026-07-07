@@ -1,0 +1,121 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  POSTGRES_DB: ecommerce
+  POSTGRES_USER: api
+  POSTGRES_PASSWORD: mga6ugr_kgz1aur!YBQ
+
+jobs:
+
+  build:
+    runs-on: docker
+
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore
+        run: dotnet restore DummyShopApi/DummyShopApi.csproj
+
+      - name: Build
+        run: |
+          dotnet build \
+          DummyShopApi/DummyShopApi.csproj \
+          --configuration Release \
+          --no-restore
+
+
+  unit-tests:
+    runs-on: docker
+    needs: build
+
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: |
+          dotnet test \
+          TestUnitaire/TestUnitaire.csproj \
+          --configuration Release \
+          --logger trx
+
+
+  integration-tests:
+    runs-on: docker
+    needs: build
+
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: ecommerce
+          POSTGRES_USER: api
+          POSTGRES_PASSWORD: mga6ugr_kgz1aur!YBQ
+
+    env:
+      ConnectionString: Host=postgres;Port=5432;Database=ecommerce;Username=api;Password=mga6ugr_kgz1aur!YBQ
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run integration tests
+        run: |
+          dotnet test \
+          TestIntegrations/TestIntegrations.csproj \
+          --configuration Release \
+          --logger trx
+
+
+  deploy:
+    runs-on: docker
+
+    needs:
+      - unit-tests
+      - integration-tests
+
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - uses: actions/checkout@v4
+
+
+      - name: Docker login
+        run: |
+          echo "${{ secrets.FORGEJO_TOKEN }}" |
+          docker login git.yourdomain.com \
+          -u ${{ github.actor }} \
+          --password-stdin
+
+
+      - name: Convert repository name lowercase
+        run: |
+          echo "IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+
+      - name: Build Docker image
+        run: |
+          docker build \
+          -t git.yourdomain.com/${IMAGE_NAME}/dummyshopapi:latest \
+          -f DummyShopApi/Dockerfile .
+
+
+      - name: Push Docker image
+        run: |
+          docker push \
+          git.yourdomain.com/${IMAGE_NAME}/dummyshopapi:latest
