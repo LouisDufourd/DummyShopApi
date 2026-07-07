@@ -30,7 +30,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
 
             var users = await _db.Connection.QueryAsync<User>(query, new { username });
 
-            if(users.Count() == 0)
+            if(!users.Any())
             {
                 throw new NotFoundEntityException("Unable to find user with the specidied username");
             }
@@ -51,7 +51,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
 
             var hashedPassowrds = await _db.Connection.QueryAsync<string>(selectPasswordQuery, new { username });
 
-            if(hashedPassowrds.Count() == 0)
+            if(!hashedPassowrds.Any())
             {
                 return false;
             }
