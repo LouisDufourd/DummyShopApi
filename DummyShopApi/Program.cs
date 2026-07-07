@@ -14,7 +14,7 @@ using System.Text;
 
 namespace DummyShopApi
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
@@ -31,7 +31,7 @@ namespace DummyShopApi
             builder.Services.AddDAL((DALOptions options) =>
             {
                 var connectionString = builder.Configuration.GetValue<string>("ConnectionString");
-                var eDBType = builder.Configuration.GetValue<EDBType?>("TypeDB");
+                var eDBType = builder.Configuration.GetValue<EDbType?>("TypeDB");
 
                 options.ConnectionString = connectionString;
                 options.TypeDB = eDBType;

@@ -1,6 +1,6 @@
 ﻿namespace DummyShopApi.DAL
 {
-    public enum EDBType
+    public enum EDbType
     {
         POSTGRESQL
     }

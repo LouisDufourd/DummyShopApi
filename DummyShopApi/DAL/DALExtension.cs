@@ -2,7 +2,7 @@
 {
     public class DALOptions
     {
-        public EDBType? TypeDB { get; set; }
+        public EDbType? TypeDB { get; set; }
         public string ConnectionString { get; set; }
     }
 

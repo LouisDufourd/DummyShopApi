@@ -4,7 +4,7 @@ namespace DummyShopApi.DAL
 {
     public interface ISession
     {
-        EDBType EDBType { get; }
+        EDbType EDBType { get; }
         IDbConnection Connection { get; }
         IDbTransaction? Transaction { get; set; }
     }
