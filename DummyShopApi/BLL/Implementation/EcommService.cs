@@ -2,6 +2,7 @@
 using DummyShopApi.BLL.Interfaces;
 using DummyShopApi.DAL;
 using DummyShopApi.DAL.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace DummyShopApi.BLL.Implementation
 {
@@ -60,7 +61,7 @@ namespace DummyShopApi.BLL.Implementation
 
             if (enumStatus == null)
             {
-                throw new Exception("Status should not be null here");
+                throw new ValidationException("Unable to convert status to an enumerable");
             }
 
             _db.BeginTransaction();
