@@ -13,6 +13,7 @@ namespace DummyShopApi.API.Controllers
     [TypeFilter<ApiExceptionFilterAttribute>]
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class OrderController : ControllerBase
     {
         private readonly IEcomService _service;
@@ -21,8 +22,22 @@ namespace DummyShopApi.API.Controllers
             _service = ecomService;
         }
 
+        /// <summary>
+        /// Retrieve a paginated list of orders
+        /// </summary>
+        /// <param name="page">The page number to retrieve</param>
+        /// <param name="status">Optional status filter for the orders</param>
+        /// <returns>A paginated list of orders</returns>
+        /// <response code="200">Returns the list of orders</response>
+        /// <response code="400">If the request parameters are invalid</response>
+        /// <response code="401">If the user is not authenticated</response>
+        /// <response code="403">If the user does not have the required role</response>
         [HttpGet]
         [Authorize(Roles = "Manager, Packer")]
+        [ProducesResponseType(typeof(GetOrdersResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetOrders([FromQuery] int page = 1, [FromQuery] string? status = null)
         {
             if(page < 1)
@@ -47,8 +62,25 @@ namespace DummyShopApi.API.Controllers
             return Ok(orderResponses);
         }
 
+        /// <summary>
+        /// Retrieve a paginated list of products from an order
+        /// </summary>
+        /// <param name="id">The order identifier</param>
+        /// <param name="page">The page number to retrieve</param>
+        /// <param name="status">Optional status filter for the order products</param>
+        /// <returns>A paginated list of products contained in the order</returns>
+        /// <response code="200">Returns the list of products in the order</response>
+        /// <response code="400">If the request parameters are invalid</response>
+        /// <response code="401">If the user is not authenticated</response>
+        /// <response code="403">If the user does not have the required role</response>
+        /// <response code="404">If the order was not found</response>
         [HttpGet("{id}/products")]
         [Authorize(Roles = "Manager, Packer, Inventory")]
+        [ProducesResponseType(typeof(GetOrderProductsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetOrderProducts([FromRoute] int id, [FromQuery] int page = 1, [FromQuery] string? status = null)
         {
             int size = 20;
@@ -62,8 +94,23 @@ namespace DummyShopApi.API.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Update the status of an order
+        /// </summary>
+        /// <param name="updateOrderStatusRequest">The new status information for the order</param>
+        /// <returns>The updated order</returns>
+        /// <response code="200">Returns the updated order</response>
+        /// <response code="400">If the request validation failed</response>
+        /// <response code="401">If the user is not authenticated</response>
+        /// <response code="403">If the user does not have the required role</response>
+        /// <response code="404">If the order was not found</response>
         [HttpPut("status")]
         [Authorize(Roles = "Manager, Packer")]
+        [ProducesResponseType(typeof(Order), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusRequest updateOrderStatusRequest)
         {
             var order = await _service.PatchOrderStatusAsync(updateOrderStatusRequest.Id, updateOrderStatusRequest.Status);
@@ -71,8 +118,24 @@ namespace DummyShopApi.API.Controllers
             return Ok(order);
         }
 
+        /// <summary>
+        /// Update the status of a product inside an order
+        /// </summary>
+        /// <param name="updateProductStatus">The new status information for the product</param>
+        /// <param name="id">The order identifier</param>
+        /// <returns>An empty response when the update succeeds</returns>
+        /// <response code="200">If the product status was updated successfully</response>
+        /// <response code="400">If the request validation failed</response>
+        /// <response code="401">If the user is not authenticated</response>
+        /// <response code="403">If the user does not have the required role</response>
+        /// <response code="404">If the order or product was not found</response>
         [HttpPut("{id}/products/status")]
         [Authorize(Roles = "Manager, Packer, Inventory")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateProductStatus([FromBody] UpdateProductStatusRequest updateProductStatus, [FromRoute] int id)
         {
             await _service.PatchProductStatus(updateProductStatus.ProductId, orderId: id, updateProductStatus.Status);
