@@ -21,4 +21,3 @@ services:
       TypeDB: POSTGRESQL
     ports:
       - 4669:8080
-      
