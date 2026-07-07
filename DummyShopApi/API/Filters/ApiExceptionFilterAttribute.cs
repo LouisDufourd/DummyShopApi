@@ -50,9 +50,9 @@ namespace DummyShopApi.API.Filters
         {
             Type type = context.Exception.GetType();
 
-            var success = _exceptionHandlers.TryGetValue(
+            _exceptionHandlers.TryGetValue(
                 type,
-                out Action<ExceptionContext> action);
+                out Action<ExceptionContext>? action);
 
             if (action != null)
             {
