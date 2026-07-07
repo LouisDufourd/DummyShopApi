@@ -35,7 +35,7 @@ build-sonar:
       - "dotnet tool install --global dotnet-sonarscanner"
       - "export PATH=\"$PATH:$HOME/.dotnet/tools\""
       - "dotnet sonarscanner begin /k:\"ldufourd_dummyshopapi_538b97a1-79a8-4af3-9ab3-cab7f527e071\" /d:sonar.token=\"$SONAR_TOKEN\" /d:\"sonar.host.url=$SONAR_HOST_URL\" "
-      - "dotnet build"
+      - "dotnet build ./DummyShopApi/DummyShopApi.csproj"
       - "dotnet sonarscanner end /d:sonar.token=\"$SONAR_TOKEN\""
   allow_failure: true
   rules:
