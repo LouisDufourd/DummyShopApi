@@ -14,8 +14,10 @@ using System.Text;
 
 namespace DummyShopApi
 {
-    public static class Program
+    public class Program
     {
+        Program() { }
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
