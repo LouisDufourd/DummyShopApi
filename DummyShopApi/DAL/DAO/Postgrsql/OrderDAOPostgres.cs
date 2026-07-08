@@ -34,6 +34,25 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return await _db.Connection.QueryAsync<Order>(query, new { limit = size, offset = page * size - size, status = status?.ToLower() });
         }
 
+        public async Task<IEnumerable<Product>> GetAllProductsAsync(int page, int size, EOrderProductStatus status)
+        {
+            string query = """
+                select
+                    p.product_id as id,
+                    p.name,
+                    sum(op.quantity) as quantity
+                from orders_products op
+                join products p on p.product_id = op.product_id_fk
+                where op.status = @status::product_order_status
+                group by p.product_id, p.name
+                order by p.product_id
+                limit @limit
+                offset @offset;
+                """;
+
+            return await _db.Connection.QueryAsync<Product>(query, new { limit = size, offset = page * size - size, status = status.ToString().ToLower() });
+        }
+
         public async Task<Order> GetByIdAsync(int id)
         {
             string query = """

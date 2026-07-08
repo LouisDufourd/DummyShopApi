@@ -79,5 +79,14 @@ namespace DummyShopApi.BLL.Interfaces
         /// <param name="username">The username used to identify the user.</param>
         /// <returns>The matching user.</returns>
         Task<User> GetUser(string username);
+
+        /// <summary>
+        /// Retreives ordered products
+        /// </summary>
+        /// <param name="page">The page number to retrieve.</param>
+        /// <param name="size">The size of the page</param>
+        /// <param name="status">The status of the products</param>
+        /// <returns>The ordered products</returns>
+        Task<IEnumerable<Product>> GetOrdersProductsAsync(int page = 1, int size = 20, string status = "none");
     }
 }

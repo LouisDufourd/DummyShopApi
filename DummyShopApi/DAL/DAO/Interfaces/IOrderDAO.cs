@@ -16,6 +16,15 @@ namespace DummyShopApi.DAL.DAO.Interfaces
         public Task<IEnumerable<Order>> GetAllAsync(int page = 1, int size = 20, string? status = null);
 
         /// <summary>
+        /// Retrieves a paginated list of products accross every orders
+        /// </summary>
+        /// <param name="page">The page number to retrieve</param>
+        /// <param name="size">The number of orders per page.</param>
+        /// <param name="status">order status filter by</param>
+        /// <returns></returns>
+        Task<IEnumerable<Product>> GetAllProductsAsync(int page, int size, EOrderProductStatus status);
+
+        /// <summary>
         /// Retrieves an order by its identifier.
         /// </summary>
         /// <param name="id">The identifier of the order.</param>

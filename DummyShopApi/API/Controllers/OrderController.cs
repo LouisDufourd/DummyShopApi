@@ -75,12 +75,12 @@ namespace DummyShopApi.API.Controllers
         /// <response code="403">If the user does not have the required role</response>
         /// <response code="404">If the order was not found</response>
         [HttpGet("{id}/products")]
-        [Authorize(Roles = "Manager, Packer, Inventory")]
+        [Authorize(Roles = "Manager, Packer")]
         [ProducesResponseType(typeof(GetOrderProductsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetOrderProducts([FromRoute] int id, [FromQuery] int page = 1, [FromQuery] string? status = null)
         {
             int size = 20;
@@ -90,6 +90,21 @@ namespace DummyShopApi.API.Controllers
                 page,
                 size
             );
+
+            return Ok(response);
+        }
+
+        [HttpGet("products")]
+        [Authorize(Roles = "Manager, Inventory")]
+        [ProducesResponseType(typeof(GetOrdersProductsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetProducts([FromQuery] int page = 1)
+        {
+            int size = 20;
+            var products = await _service.GetOrdersProductsAsync(page, size, "none");
+
+            var response = new GetOrdersProductsResponse(products.Select(p => new OrdersProductsItem(p.Id, p.Name, p.Quantity)).ToList(), page, size);
 
             return Ok(response);
         }
@@ -107,10 +122,10 @@ namespace DummyShopApi.API.Controllers
         [HttpPut("status")]
         [Authorize(Roles = "Manager, Packer")]
         [ProducesResponseType(typeof(Order), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusRequest updateOrderStatusRequest)
         {
             var order = await _service.PatchOrderStatusAsync(updateOrderStatusRequest.Id, updateOrderStatusRequest.Status);
@@ -132,10 +147,10 @@ namespace DummyShopApi.API.Controllers
         [HttpPut("{id}/products/status")]
         [Authorize(Roles = "Manager, Packer, Inventory")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateProductStatus([FromBody] UpdateProductStatusRequest updateProductStatus, [FromRoute] int id)
         {
             await _service.PatchProductStatus(updateProductStatus.ProductId, orderId: id, updateProductStatus.Status);
