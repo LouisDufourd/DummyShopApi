@@ -161,5 +161,59 @@ namespace TestIntegrations
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
+
+        [Fact]
+        public async Task GetProducts_WithManagerRole_ReturnsProducts()
+        {
+            ResetDatabase();
+            Login();
+
+            var response = await _client.GetAsync("/api/Order/products");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var result = await response.Content
+                .ReadFromJsonAsync<GetOrdersProductsResponse>();
+
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Page);
+            Assert.Equal(20, result.Size);
+            Assert.NotNull(result.Products);
+        }
+
+        [Fact]
+        public async Task GetProducts_WithInventoryRole_ReturnsProducts()
+        {
+            ResetDatabase();
+            Login();
+
+            var response = await _client.GetAsync("/api/order/products");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            Logout();
+        }
+
+        [Fact]
+        public async Task GetProducts_WithoutToken_ReturnsUnauthorized()
+        {
+            var response = await _client.GetAsync("/api/order/products");
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetProducts_WithInvalidRole_ReturnsForbidden()
+        {
+            ResetDatabase();
+            Login(ERole.Packer);
+
+            var response = await _client.GetAsync("/api/order/products");
+
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+
+            Logout();
+        }
+
     }
 }

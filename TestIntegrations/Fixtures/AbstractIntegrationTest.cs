@@ -54,10 +54,10 @@ namespace TestIntegrations.Fixtures
             }
         }
 
-        public void Login()
+        public void Login(ERole role = ERole.Manager)
         {
 
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GenerateJwtToken("Test", ERole.Manager));
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GenerateJwtToken("Test", role));
         }
 
         public void Logout()

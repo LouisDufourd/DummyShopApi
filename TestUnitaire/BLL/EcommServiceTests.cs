@@ -183,5 +183,39 @@ namespace TestUnitaire.BLL
             await Assert.ThrowsAsync<NotImplementedException>(() =>
                 _service.PatchProductStatus(1, 2, "banana"));
         }
+
+        [Theory]
+        [InlineData("none", EOrderProductStatus.None)]
+        [InlineData("picked", EOrderProductStatus.Picked)]
+        [InlineData("packed", EOrderProductStatus.Packed)]
+        public async Task GetOrdersProductsAsync_ShouldConvertStatus(string status, EOrderProductStatus expected)
+        {
+            var products = new List<Product> { new(), new() };
+
+            _orderDao
+                .Setup(x => x.GetAllProductsAsync(1, 20, expected))
+                .ReturnsAsync(products);
+
+            var result = await _service.GetOrdersProductsAsync(status: status);
+
+            Assert.Equal(2, result.Count());
+
+            _orderDao.Verify(x =>
+                x.GetAllProductsAsync(1, 20, expected),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task GetOrdersProductsAsync_ShouldThrow_WhenStatusIsUnknown()
+        {
+            await Assert.ThrowsAsync<NotImplementedException>(() => _service.GetOrdersProductsAsync(status: "banana"));
+
+            _orderDao.Verify(x =>
+                x.GetAllProductsAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<EOrderProductStatus>()),
+                Times.Never);
+        }
     }
 }
