@@ -17,6 +17,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             _db = session;
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<Product>> GetAllAsync(int page = 1, int size = 20)
         {
             string query = """
@@ -63,6 +64,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return products;
         }
 
+        /// <inheritdoc/>
         public async Task<Product> GetByIdAsync(int id)
         {
             string query = """
@@ -103,6 +105,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return newProducts.Single();
         }
 
+        /// <inheritdoc/>
         public async Task<Product> PatchQuantityAsync(int id, int quantity)
         {
             string query = """

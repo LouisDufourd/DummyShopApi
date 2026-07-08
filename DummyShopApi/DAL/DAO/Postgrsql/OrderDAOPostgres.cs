@@ -17,6 +17,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             _db = db;
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<Order>> GetAllAsync(int page = 1, int size = 20, string? status = null)
         {
             string query = """
@@ -34,6 +35,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return await _db.Connection.QueryAsync<Order>(query, new { limit = size, offset = page * size - size, status = status?.ToLower() });
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<Product>> GetAllProductsAsync(int page, int size, EOrderProductStatus status)
         {
             string query = """
@@ -53,6 +55,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return await _db.Connection.QueryAsync<Product>(query, new { limit = size, offset = page * size - size, status = status.ToString().ToLower() });
         }
 
+        /// <inheritdoc/>
         public async Task<Order> GetByIdAsync(int id)
         {
             string query = """
@@ -74,6 +77,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return order;
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<OrderProduct>> GetProductsAsync(int id, int page = 1, int size = 20, EOrderProductStatus? status = null)
         {
             var query = new StringBuilder("""
@@ -107,6 +111,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return await _db.Connection.QueryAsync<OrderProduct>(query.ToString(), parameters);
         }
 
+        /// <inheritdoc/>
         public async Task<Order> PatchOrderStatusAsync(int id, string status)
         {
             string query = """
@@ -131,6 +136,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return await GetByIdAsync(id);
         }
 
+        /// <inheritdoc/>
         public async Task PatchProductStatusAsync(int productId, int orderId, EOrderProductStatus status)
         {
             string query = """

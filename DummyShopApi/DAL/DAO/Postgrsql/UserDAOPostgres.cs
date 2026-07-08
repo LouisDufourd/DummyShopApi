@@ -15,6 +15,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             _db = db;
         }
 
+        /// <inheritdoc/>
         public async Task<User> GetUserByUsername(string username)
         {
             string query = """
@@ -38,6 +39,7 @@ namespace DummyShopApi.DAL.DAO.Postgrsql
             return users.Single();
         }
 
+        /// <inheritdoc/>
         public async Task<bool> Login(string username, string password)
         {
             var selectPasswordQuery = """
